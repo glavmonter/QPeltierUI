@@ -1,0 +1,21 @@
+{
+    "cortex-debug.variableUseNaturalFormat": true,
+    "files.associations": {
+    },
+    "cmake.configureSettings": {
+        "CMAKE_PREFIX_PATH": "C:/Qt/6.7.0/msvc2019_64/lib/cmake",
+        "CMAKE_BUILD_TYPE": "${buildType}"
+    },
+    "files.eol": "\n",
+    "files.encoding": "utf8",
+    "C_Cpp.errorSquiggles": "Disabled",
+    "cmake.configureArgs": [        
+    ],
+    "cmake.generator": "Ninja",
+    "cortex-debug.registerUseNaturalFormat": false,
+    "c-cpp-flylint.clang.enable": false,
+    "c-cpp-flylint.flawfinder.enable": false,
+    "c-cpp-flylint.lizard.enable": false,
+    "c-cpp-flylint.flexelint.enable": false,
+    "c-cpp-flylint.cppcheck.enable": true,    
+}
