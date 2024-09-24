@@ -2,10 +2,23 @@
 
 #include <QApplication>
 #include <QStyleFactory>
+#include <QCommandLineParser>
+
 #include <spdlog/spdlog.h>
 
 int main(int argc, char *argv[]) {
 QApplication a(argc, argv);
+
+    QCoreApplication::setOrganizationName("MeshLab");
+    QCoreApplication::setApplicationName("QPeltierUI");
+
+QCommandLineParser parser;
+    parser.setApplicationDescription("QPeltierUI - Thermoelectric controller utility");
+    parser.addHelpOption();
+QCommandLineOption simulatorOption(QStringList() << "s" << "simulator" << "Enable simulator mode");
+    parser.addOption(simulatorOption);
+    parser.process(a);
+    bool isSimulator = parser.isSet(simulatorOption);
 
 QPalette palette;
     a.setStyle(QStyleFactory::create("fusion"));
@@ -30,7 +43,7 @@ QPalette palette;
 
     a.setPalette(palette);
 
-MainWindow w;
+MainWindow w(isSimulator);
     w.show();
     auto exit_code = a.exec();
     spdlog::shutdown();

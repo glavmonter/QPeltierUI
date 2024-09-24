@@ -1,14 +1,15 @@
 {
     "cortex-debug.variableUseNaturalFormat": true,
     "files.associations": {
+        "functional": "cpp"
     },
     "cmake.configureSettings": {
-        "CMAKE_PREFIX_PATH": "C:/Qt/6.7.0/msvc2019_64/lib/cmake",
+        "CMAKE_PREFIX_PATH": "${env:QT6_DIR}",
         "CMAKE_BUILD_TYPE": "${buildType}"
     },
     "files.eol": "\n",
     "files.encoding": "utf8",
-    "C_Cpp.errorSquiggles": "Disabled",
+    "C_Cpp.errorSquiggles": "disabled",
     "cmake.configureArgs": [        
     ],
     "cmake.generator": "Ninja",

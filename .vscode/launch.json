@@ -8,13 +8,13 @@
             "name": "SPD Contoller",
             "cwd": "${workspaceRoot}/build",
             "program": "${workspaceRoot}/build/QPeltierUI.exe",
-            "args": [                
+            "args": [
+                "-s"
             ],
             "visualizerFile": "${workspaceFolder}/qt6.natvis",
             "request": "launch",
             "stopAtEntry": false,
-            "type": "cppvsdbg",
-            "console": "integratedTerminal"
+            "type": "cppvsdbg"
         }
     ]
 }

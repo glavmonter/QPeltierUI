@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(QPeltierUI)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -12,13 +12,14 @@ find_package(Qt6 COMPONENTS
         Core
         Gui
         Widgets
+        SerialPort
+        PrintSupport
         REQUIRED)
 
 if (MSVC)
     add_definitions("-D__WIN32__ -DUNICODE")
     add_definitions("-DSPDLOG_WCHAR_FILENAMES")
     set(WINAPP "WIN32")
-
 elseif(UNIX)
     include_directories(".")
     set(WINAPP "")
@@ -32,6 +33,8 @@ set(QPELTIERUI_SRC
         main.cpp
         mainwindow.cpp
         mainwindow.ui
+        serialportworker.cpp
+        qcustomplot/qcustomplot.cpp
         )
 
 set(APP_VERSION "1.0.0.0")
@@ -45,11 +48,13 @@ target_link_libraries(QPeltierUI PRIVATE
         Qt6::Core
         Qt6::Gui
         Qt6::Widgets
+        Qt6::SerialPort
+        Qt6::PrintSupport
         )
 
 if(UNIX)
     find_package(Threads REQUIRED)
-    target_link_libraries(QPeltierUI PRIVATE Threads::Threads usb-1.0 udev)
+    target_link_libraries(QPeltierUI PRIVATE Threads::Threads)
 endif()
 
 if (WIN32)
@@ -73,7 +78,7 @@ if (WIN32)
                 "${QT_INSTALL_PATH}/plugins/platforms/qwindows${DEBUG_SUFFIX}.dll"
                 "$<TARGET_FILE_DIR:${PROJECT_NAME}>/plugins/platforms/")
     endif ()
-    foreach (QT_LIB Core Gui Widgets)
+    foreach (QT_LIB Core Gui Widgets SerialPort PrintSupport)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy
                 "${QT_INSTALL_PATH}/bin/Qt6${QT_LIB}${DEBUG_SUFFIX}.dll"
