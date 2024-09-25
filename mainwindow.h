@@ -2,9 +2,14 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QElapsedTimer>
+#include <QChart>
+#include <QValueAxis>
+#include <QXYSeries>
+#include <QLineSeries>
+
 #include "serialportworker.h"
-#include "qcustomplot.h"
+#include "xyseriesiodevice.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -35,10 +40,15 @@ private:
     double m_graphTemperatureShowTime = 30;     ///< Длина отображения графика температуры, секунд
     double m_graphCurrentShowTime = 10;         ///< Длина отображения графика тока, секунд
 
-    double m_lastPointKey = 0;
-    double m_key = 0;
+    void ConfigureCharts();
 
-    void ConfigurePlot(QCustomPlot *plot, const QString &xCaption, const QString &yCaption);
+    QChart *m_chartCurrent;
+    QLineSeries *m_seriesCurrent;
+    XYSeriesIODevice *m_deviceCurrent;
+
+    QChart *m_chartTemperature;
+    QLineSeries *m_seriesTemperature;
+    XYSeriesIODevice *m_deviceTemperature;
 
 public slots:
     void SerialError(const QString &s);

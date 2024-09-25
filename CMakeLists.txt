@@ -13,7 +13,7 @@ find_package(Qt6 COMPONENTS
         Gui
         Widgets
         SerialPort
-        PrintSupport
+        Charts
         REQUIRED)
 
 if (MSVC)
@@ -34,7 +34,7 @@ set(QPELTIERUI_SRC
         mainwindow.cpp
         mainwindow.ui
         serialportworker.cpp
-        qcustomplot/qcustomplot.cpp
+        xyseriesiodevice.cpp
         )
 
 set(APP_VERSION "1.0.0.0")
@@ -49,7 +49,7 @@ target_link_libraries(QPeltierUI PRIVATE
         Qt6::Gui
         Qt6::Widgets
         Qt6::SerialPort
-        Qt6::PrintSupport
+        Qt6::Charts
         )
 
 if(UNIX)

@@ -51,10 +51,10 @@
        <enum>QLayout::SizeConstraint::SetMaximumSize</enum>
       </property>
       <item>
-       <widget class="QCustomPlot" name="plotTemperature" native="true"/>
+       <widget class="QChartView" name="chartViewTemperature" native="true"/>
       </item>
       <item>
-       <widget class="QCustomPlot" name="plotCurrent" native="true"/>
+       <widget class="QChartView" name="chartViewCurrent" native="true"/>
       </item>
      </layout>
     </item>
@@ -74,9 +74,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QCustomPlot</class>
+   <class>QChartView</class>
    <extends>QWidget</extends>
-   <header>qcustomplot.h</header>
+   <header>qchartview.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

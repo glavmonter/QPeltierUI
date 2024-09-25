@@ -7,6 +7,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #endif
 
+#include <QTimer>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -22,6 +23,10 @@ MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimula
     sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
 #endif
     
+    logger = std::make_shared<spdlog::logger>("IO", sinks.begin(), sinks.end());
+    logger->set_level(spdlog::level::debug);
+    spdlog::register_logger(logger);
+
     logger = std::make_shared<spdlog::logger>("Serial", sinks.begin(), sinks.end());
     logger->set_level(spdlog::level::debug);
     spdlog::register_logger(logger);
@@ -31,14 +36,11 @@ MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimula
     spdlog::register_logger(logger);
 
     logger->info("Init QPeltierUI");
-    
-QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
-    ConfigurePlot(ui->plotCurrent, "Current", "A");
-    ConfigurePlot(ui->plotTemperature, "Temperature", "C");
-    ui->plotCurrent->xAxis->setTicker(timeTicker);
-    ui->plotTemperature->xAxis->setTicker(timeTicker);
-    PopulateSerialPorts();
 
+
+    ConfigureCharts();
+
+    PopulateSerialPorts();
     connect(ui->cmbSerialPorts, &QComboBox::activated, [=](int index) {
         if (ui->cmbSerialPorts->itemData(index).toString() == "__refresh__") {
             PopulateSerialPorts();
@@ -61,21 +63,54 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
-void MainWindow::ConfigurePlot(QCustomPlot *plot, const QString &xCaption, const QString &yCaption) {
-    plot->setMinimumHeight(200);
-    plot->setInteractions(QCP::iRangeZoom | QCP::iRangeDrag);
-    plot->plotLayout()->insertRow(0);
-    plot->plotLayout()->addElement(0, 0, new QCPTextElement(plot, xCaption));
-    plot->addGraph();
+void MainWindow::ConfigureCharts() {
+    m_chartCurrent = new QChart();
+    m_seriesCurrent = new QLineSeries();
+    m_chartCurrent->addSeries(m_seriesCurrent);
 
-QPen pen(Qt::red);
-    pen.setWidth(2);
-    plot->graph(0)->setPen(pen);
-    plot->xAxis->setLabel("samples");
-    plot->yAxis->setLabel(yCaption);
+auto axisX = new QValueAxis();
+    axisX->setRange(0, XYSeriesIODevice::sampleCount/2);
+    axisX->setLabelFormat("%g");
+    axisX->setTitleText("Samples");
 
-    connect(plot->xAxis, qOverload<const QCPRange &>(&QCPAxis::rangeChanged), plot->xAxis2, qOverload<const QCPRange &>(&QCPAxis::setRange));
-    connect(plot->yAxis, qOverload<const QCPRange &>(&QCPAxis::rangeChanged), plot->yAxis2, qOverload<const QCPRange &>(&QCPAxis::setRange));
+auto axisY = new QValueAxis();
+    axisY->setRange(-2, 2);
+    axisY->setTitleText("Current, A");
+
+    m_chartCurrent->addAxis(axisX, Qt::AlignBottom);
+    m_seriesCurrent->attachAxis(axisX);
+    m_chartCurrent->addAxis(axisY, Qt::AlignLeft);
+    m_seriesCurrent->attachAxis(axisY);
+    m_seriesCurrent->setUseOpenGL(true);
+    m_chartCurrent->legend()->hide();
+    m_chartCurrent->setTitle("Current");
+
+    m_chartTemperature = new QChart();
+    m_seriesTemperature = new QLineSeries();
+    m_chartTemperature->addSeries(m_seriesTemperature);
+
+    axisX = new QValueAxis();
+    axisX->setRange(0, XYSeriesIODevice::sampleCount);
+    axisX->setLabelFormat("%g");
+    axisX->setTitleText("Samples");
+
+    axisY = new QValueAxis();
+    axisY->setRange(-1.5, 1.5);
+    axisY->setTitleText("Temperature, C");
+    
+    m_chartTemperature->addAxis(axisX, Qt::AlignBottom);
+    m_seriesTemperature->attachAxis(axisX);
+    m_chartTemperature->addAxis(axisY, Qt::AlignLeft);
+    m_seriesTemperature->attachAxis(axisY);
+    m_seriesTemperature->setUseOpenGL(true);
+    m_chartTemperature->legend()->hide();
+    m_chartTemperature->setTitle("Temperature");
+
+    ui->chartViewCurrent->setChart(m_chartCurrent);
+    ui->chartViewTemperature->setChart(m_chartTemperature);
+
+    m_deviceCurrent = new XYSeriesIODevice(m_seriesCurrent, this);
+    m_deviceTemperature = new XYSeriesIODevice(m_seriesTemperature, this);
 }
 
 void MainWindow::SetConnected() {
@@ -83,20 +118,10 @@ void MainWindow::SetConnected() {
         delete m_serialPortWorker;
     }
 
-    m_lastPointKey = 0;
-    m_key = 0;
     m_serialPortWorker = new SerialPortWorker(isSimulator);
     connect(m_serialPortWorker, &SerialPortWorker::error, this, &MainWindow::SerialError, static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
     connect(m_serialPortWorker, &SerialPortWorker::telemetryRecv, this, &MainWindow::Telemetry, Qt::BlockingQueuedConnection);
     m_serialPortWorker->startReceiver(ui->cmbSerialPorts->currentData().toString(), 10);
-
-    ui->plotCurrent->graph(0)->data()->clear();
-    ui->plotCurrent->xAxis->setRange(0, m_graphTemperatureShowTime, Qt::AlignRight);
-    ui->plotCurrent->replot();
-
-    ui->plotTemperature->graph(0)->data()->clear();
-    ui->plotTemperature->xAxis->setRange(0, m_graphCurrentShowTime, Qt::AlignRight);
-    ui->plotTemperature->replot();
 
     isConnected = true;
     ui->btnConnectDisconnect->setText("Disconnect");
@@ -137,25 +162,9 @@ void MainWindow::Telemetry(QVector<double> current, double temperature, uint32_t
     QCoreApplication::processEvents();
 
     for (int i = 0; i < current.size(); i++) {
-        ui->plotCurrent->graph(0)->addData(m_key, current[i]); // 500 мкс на отсчет
-        m_key += 500e-6;
+        // ui->plotCurrent->graph(0)->addData(m_key, current[i]); // 500 мкс на отсчет
     }
 
-    ui->plotTemperature->graph(0)->addData(m_key, temperature);
-
-    if (m_key - m_lastPointKey > 0.1) {
-        logger->trace("TLM[I]: {}", ui->plotCurrent->graph(0)->data()->size());
-        m_lastPointKey = m_key;
-
-        ui->plotCurrent->graph(0)->data()->removeBefore(m_key - m_graphCurrentShowTime);
-        ui->plotCurrent->xAxis->setRange(m_key, m_graphCurrentShowTime, Qt::AlignRight);
-        ui->plotCurrent->yAxis->rescale(true);
-        ui->plotCurrent->replot();
-        
-        logger->trace("TLM[T]: {}", ui->plotTemperature->graph(0)->data()->size());
-        ui->plotTemperature->graph(0)->data()->removeBefore(m_key - m_graphTemperatureShowTime);
-        ui->plotTemperature->xAxis->setRange(m_key, m_graphTemperatureShowTime, Qt::AlignRight);
-        ui->plotTemperature->yAxis->rescale(true);
-        ui->plotTemperature->replot();
-    }
+    m_deviceCurrent->writeData(current);
+    // m_deviceTemperature->writeData(temperature);
 }
