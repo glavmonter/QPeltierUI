@@ -47,7 +47,10 @@ QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
 
     connect(ui->btnConnectDisconnect, &QPushButton::clicked, [=]() {
         if (isConnected) {
-            SetDisconnected();
+            disconnect(m_serialPortWorker, &SerialPortWorker::telemetryRecv, this, &MainWindow::Telemetry);
+            QTimer::singleShot(0, this, [this]() {
+                SetDisconnected();
+            });
         } else {
             SetConnected();
         }
@@ -84,7 +87,7 @@ void MainWindow::SetConnected() {
     m_key = 0;
     m_serialPortWorker = new SerialPortWorker(isSimulator);
     connect(m_serialPortWorker, &SerialPortWorker::error, this, &MainWindow::SerialError, static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
-    connect(m_serialPortWorker, &SerialPortWorker::telemetryRecv, this, &MainWindow::Telemetry, Qt::QueuedConnection);
+    connect(m_serialPortWorker, &SerialPortWorker::telemetryRecv, this, &MainWindow::Telemetry, Qt::BlockingQueuedConnection);
     m_serialPortWorker->startReceiver(ui->cmbSerialPorts->currentData().toString(), 10);
 
     ui->plotCurrent->graph(0)->data()->clear();
