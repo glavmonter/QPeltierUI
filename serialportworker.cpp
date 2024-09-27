@@ -47,13 +47,11 @@ void SerialPortWorker::runSimulator() {
     
     size_t itable = 0;
     size_t itable_temperature = 128;
-
+QList<double> current(40);
     while (!m_quit) {
         QThread::msleep(20);
-
-        QVector<double> current;
         for (int i = 0; i < 40; i++) {
-            current.append(m_phaseTable[itable]);
+            current[i] = m_phaseTable[itable];
             itable = (itable + 1) & SinTableModMask;
         }
 

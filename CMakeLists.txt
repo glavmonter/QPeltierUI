@@ -34,7 +34,7 @@ set(QPELTIERUI_SRC
         mainwindow.cpp
         mainwindow.ui
         serialportworker.cpp
-        xyseriesiodevice.cpp
+        recorderwidget.cpp
         )
 
 set(APP_VERSION "1.0.0.0")
@@ -78,7 +78,7 @@ endif()
 #                 "${QT_INSTALL_PATH}/plugins/platforms/qwindows${DEBUG_SUFFIX}.dll"
 #                 "$<TARGET_FILE_DIR:${PROJECT_NAME}>/plugins/platforms/")
 #     endif ()
-#     foreach (QT_LIB Core Gui Widgets SerialPort PrintSupport)
+#     foreach (QT_LIB Core Gui Widgets SerialPort PrintSupport Charts OpenGL OpenGLWidgets)
 #         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 #                 COMMAND ${CMAKE_COMMAND} -E copy
 #                 "${QT_INSTALL_PATH}/bin/Qt6${QT_LIB}${DEBUG_SUFFIX}.dll"

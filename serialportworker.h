@@ -17,7 +17,7 @@ public:
 
 signals:
     void error(const QString &s);
-    void telemetryRecv(QVector<double> current, double temperature, uint32_t status);
+    void telemetryRecv(QList<double> &current, double temperature, uint32_t status);
 
 private:
     void run() override;

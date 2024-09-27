@@ -8,7 +8,7 @@
 #include <QLineSeries>
 
 #include "serialportworker.h"
-#include "xyseriesiodevice.h"
+#include "recorderwidget.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -30,7 +30,7 @@ public:
     void SetConnected();
     void SetDisconnected();
     void PopulateSerialPorts();
-
+    
 private:
     Ui::MainWindow *ui;
     SerialPortWorker *m_serialPortWorker = nullptr;
@@ -42,17 +42,15 @@ private:
 
     void ConfigureCharts();
 
-    QChart *m_chartCurrent;
-    QLineSeries *m_seriesCurrent;
-    XYSeriesIODevice *m_deviceCurrent;
-
-    QChart *m_chartTemperature;
-    QLineSeries *m_seriesTemperature;
-    XYSeriesIODevice *m_deviceTemperature;
+    RecorderWidget *m_chartCurrent;
+    RecorderWidget *m_chartTemperature;
 
 public slots:
     void SerialError(const QString &s);
-    void Telemetry(QVector<double> current, double temperature, uint32_t status);
+    void Telemetry(const QList<double> &current, double temperature, uint32_t status);
 
+    void AddTestData();
+    void UpdateAxisX();
 };
+
 #endif // MAINWINDOW_H

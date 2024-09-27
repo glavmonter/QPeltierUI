@@ -8,6 +8,7 @@
 #endif
 
 #include <QTimer>
+#include <QRandomGenerator>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -37,7 +38,6 @@ MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimula
 
     logger->info("Init QPeltierUI");
 
-
     ConfigureCharts();
 
     PopulateSerialPorts();
@@ -57,6 +57,9 @@ MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimula
             SetConnected();
         }
     });
+
+    connect(ui->btnAddData, &QPushButton::clicked, this, &MainWindow::AddTestData);
+    connect(ui->btnAxisXApply, &QPushButton::clicked, this, &MainWindow::UpdateAxisX);
 }
 
 MainWindow::~MainWindow() {
@@ -64,59 +67,29 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::ConfigureCharts() {
-    m_chartCurrent = new QChart();
-    m_seriesCurrent = new QLineSeries();
-    m_chartCurrent->addSeries(m_seriesCurrent);
-
-auto axisX = new QValueAxis();
-    axisX->setRange(0, XYSeriesIODevice::sampleCount/2);
-    axisX->setLabelFormat("%g");
-    axisX->setTitleText("Samples");
-
-auto axisY = new QValueAxis();
-    axisY->setRange(-2, 2);
-    axisY->setTitleText("Current, A");
-
-    m_chartCurrent->addAxis(axisX, Qt::AlignBottom);
-    m_seriesCurrent->attachAxis(axisX);
-    m_chartCurrent->addAxis(axisY, Qt::AlignLeft);
-    m_seriesCurrent->attachAxis(axisY);
-    m_seriesCurrent->setUseOpenGL(true);
+    m_chartCurrent = new RecorderWidget();
     m_chartCurrent->legend()->hide();
-    m_chartCurrent->setTitle("Current");
+    m_chartCurrent->axisY()->setTitleText("Current, A");
+    m_chartCurrent->axisY()->setRange(-1, 1);
+    m_chartCurrent->setRecordParameters(500e-6, 10); // 500 мкс/тик, 10 секунд записи
 
-    m_chartTemperature = new QChart();
-    m_seriesTemperature = new QLineSeries();
-    m_chartTemperature->addSeries(m_seriesTemperature);
-
-    axisX = new QValueAxis();
-    axisX->setRange(0, XYSeriesIODevice::sampleCount);
-    axisX->setLabelFormat("%g");
-    axisX->setTitleText("Samples");
-
-    axisY = new QValueAxis();
-    axisY->setRange(-1.5, 1.5);
-    axisY->setTitleText("Temperature, C");
-    
-    m_chartTemperature->addAxis(axisX, Qt::AlignBottom);
-    m_seriesTemperature->attachAxis(axisX);
-    m_chartTemperature->addAxis(axisY, Qt::AlignLeft);
-    m_seriesTemperature->attachAxis(axisY);
-    m_seriesTemperature->setUseOpenGL(true);
+    m_chartTemperature = new RecorderWidget();
     m_chartTemperature->legend()->hide();
-    m_chartTemperature->setTitle("Temperature");
+    m_chartTemperature->axisY()->setTitleText("Temperature, C");
+    m_chartTemperature->axisY()->setRange(-1, 1);
+    m_chartTemperature->setRecordParameters(20e-3, 30); // 20 мс/тик, 30 секунд записи
 
     ui->chartViewCurrent->setChart(m_chartCurrent);
     ui->chartViewTemperature->setChart(m_chartTemperature);
-
-    m_deviceCurrent = new XYSeriesIODevice(m_seriesCurrent, this);
-    m_deviceTemperature = new XYSeriesIODevice(m_seriesTemperature, this);
 }
 
 void MainWindow::SetConnected() {
     if (m_serialPortWorker) {
         delete m_serialPortWorker;
     }
+
+    m_chartCurrent->clear();
+    m_chartTemperature->clear();
 
     m_serialPortWorker = new SerialPortWorker(isSimulator);
     connect(m_serialPortWorker, &SerialPortWorker::error, this, &MainWindow::SerialError, static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
@@ -158,13 +131,27 @@ void MainWindow::SerialError(const QString &s) {
 }
 
 
-void MainWindow::Telemetry(QVector<double> current, double temperature, uint32_t status) {
-    QCoreApplication::processEvents();
+void MainWindow::Telemetry(const QList<double> &current, double temperature, uint32_t status) {
+    m_chartCurrent->addData(current);
+    m_chartTemperature->addData(temperature);
+}
 
-    for (int i = 0; i < current.size(); i++) {
-        // ui->plotCurrent->graph(0)->addData(m_key, current[i]); // 500 мкс на отсчет
+void MainWindow::AddTestData() {
+QVector<double> data;
+QRandomGenerator rng;
+static int last_data = 0;
+
+    for (int i(0); i < 16; ++i) {
+        data.append(i + last_data);
     }
 
-    m_deviceCurrent->writeData(current);
-    // m_deviceTemperature->writeData(temperature);
+    last_data += 16;
+    m_chartCurrent->addData(data);
+}
+
+void MainWindow::UpdateAxisX() {
+    auto min = ui->spinAxisXMin->value();
+    auto max = ui->spinAxisXMax->value();
+    logger->info("Set range to [{} : {}]", min, max);
+    m_chartCurrent->axisX()->setRange(min, max);
 }
