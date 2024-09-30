@@ -82,6 +82,20 @@ static const int resolution = 1;
         m_series->replace(m_buffer);
         m_axisX->setRange(left, right);
         m_currentTime = right;
+
+        double min = std::numeric_limits<double>::max();
+        double max = std::numeric_limits<double>::lowest();
+        for (const auto &p : m_buffer) {
+            if (p.y() < min) {
+                min = p.y();
+            }
+
+            if (p.y() > max) {
+                max = p.y();
+            }
+        }
+
+        m_axisY->setRange(min - 0.1, max + 0.1);
     }
 }
 

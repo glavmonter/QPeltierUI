@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "QPeltierUI",
+            "name": "QPeltierUI Simulator",
             "type": "cppvsdbg",
             "cwd": "${workspaceRoot}/build",
             "envFile": "${workspaceFolder}/.vscode/project.env",
@@ -16,6 +16,34 @@
             "visualizerFile": "${workspaceFolder}/qt6.natvis",
             "request": "launch",
             "stopAtEntry": false,
+        },
+        {
+            "name": "QPeltierUI",
+            "type": "cppvsdbg",
+            "cwd": "${workspaceRoot}/build",
+            "envFile": "${workspaceFolder}/.vscode/project.env",
+            "program": "${workspaceRoot}/build/QPeltierUI.exe",
+            "args": [],
+            "visualizerFile": "${workspaceFolder}/qt6.natvis",
+            "request": "launch",
+            "stopAtEntry": false,
+            "sourceFileMap": {
+                "C:/work/build/qt5_workdir/w/s": "D:/Qt/6.7.0/Src",
+                "Q:/qt5_workdir/w/s": "D:/Qt/6.7.0/Src",
+                "C:/Users/qt/work/install": "D:/Qt/6.7.0/Src",
+                "C:/Users/qt/work/qt": "D:/Qt/6.7.0/Src"
+            }
+        },
+
+        {
+            "name": "check_wake.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceRoot}/Utils/check_wake.py",
+            "console": "integratedTerminal",
+            "args": [
+                "c0:55:5a:99:2d:08:00:08:00:10:00:10:00:10:00:08:00:08:00:08:00:08:00:10:00:10:00:08:00:10:00:08:00:10:00:08:00:08:00:10:00:10:00:10:00:00:00:08:00:10:00:08:00:00:00:08:00:10:00:10:00:08:00:08:00:08:00:08:00:08:00:08:00:08:00:08:00:08:00:10:00:08:00:08:00:00:00:db:dc:c1:00:00:00:00:31"
+            ]
         }
     ]
 }

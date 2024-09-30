@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 
 #include <QApplication>
+#include <QDir>
+#include <QMessageBox>
 #include <QStyleFactory>
 #include <QCommandLineParser>
 
@@ -8,6 +10,13 @@
 
 int main(int argc, char *argv[]) {
 QApplication a(argc, argv);
+    
+    if (!QDir("logs").exists()) {
+        if (!QDir().mkdir("logs")) {
+            QMessageBox::critical(nullptr, "Log error", "Cannot create logs folder. Check permissions");
+            return 1;
+        }
+    }
 
     QCoreApplication::setOrganizationName("MeshLab");
     QCoreApplication::setApplicationName("QPeltierUI");

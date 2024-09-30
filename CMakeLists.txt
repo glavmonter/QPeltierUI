@@ -35,11 +35,10 @@ set(QPELTIERUI_SRC
         mainwindow.ui
         serialportworker.cpp
         recorderwidget.cpp
+        wake.cpp
         )
 
 set(APP_VERSION "1.0.0.0")
-
-include_directories(qcustomplot)
 
 add_executable(QPeltierUI ${WINAPP} ${QPELTIERUI_SRC} ${PLATFORM_SRC} ${APP_ICON_RESOURCE_WINDOWS})
 target_compile_definitions(QPeltierUI PUBLIC "-D_APP_VERSION=\"${APP_VERSION}\"")

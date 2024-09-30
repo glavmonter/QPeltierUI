@@ -4,7 +4,10 @@
 #include <QMutex>
 #include <QThread>
 #include <QList>
+#include <QSerialPort>
 #include "spdlog/spdlog.h"
+#include "wake.h"
+
 
 class SerialPortWorker : public QThread {
     Q_OBJECT
@@ -17,9 +20,19 @@ public:
 
 signals:
     void error(const QString &s);
-    void telemetryRecv(QList<double> &current, double temperature, uint32_t status);
+    void telemetryRecv(QList<double> current, double temperature, uint32_t status);
+
+public slots:
+    void recvValid(const QList<uint8_t> &data, uint8_t command);
+    void recvInvalid(const QList<uint8_t> &data, uint8_t command);
+    
+    void setOutputVoltage(double voltagePercent);
+    
+protected:
 
 private:
+static const int TelementrySize = 90;
+
     void run() override;
 
     bool m_isSimulator;
@@ -36,6 +49,10 @@ private:
     static constexpr uint32_t SinTableSize = 1024;
     static constexpr uint32_t SinTableModMask = SinTableSize - 1;
     QVector<double> m_phaseTable;
+    
+    QByteArray m_txDataPending;
+
+    void ParseTelemetryRecord(const QList<uint8_t> &data);
 };
 
 #endif // SERIALPORTWORKER_H

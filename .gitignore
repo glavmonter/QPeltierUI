@@ -7,3 +7,5 @@ tmp/
 .idea/
 .vs/
 CMakeSettings.json
+.venv/
+__pycache__

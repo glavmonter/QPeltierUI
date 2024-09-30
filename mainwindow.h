@@ -30,12 +30,12 @@ public:
     void SetConnected();
     void SetDisconnected();
     void PopulateSerialPorts();
-    
+        std::shared_ptr<spdlog::logger> logger;
+
 private:
     Ui::MainWindow *ui;
     SerialPortWorker *m_serialPortWorker = nullptr;
 
-    std::shared_ptr<spdlog::logger> logger;
 
     double m_graphTemperatureShowTime = 30;     ///< Длина отображения графика температуры, секунд
     double m_graphCurrentShowTime = 10;         ///< Длина отображения графика тока, секунд
@@ -44,6 +44,7 @@ private:
 
     RecorderWidget *m_chartCurrent;
     RecorderWidget *m_chartTemperature;
+    QList<QWidget *> m_widgetsInTabs;
 
 public slots:
     void SerialError(const QString &s);
@@ -51,6 +52,8 @@ public slots:
 
     void AddTestData();
     void UpdateAxisX();
+
+    void CheckWake();
 };
 
 #endif // MAINWINDOW_H
