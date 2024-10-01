@@ -67,10 +67,6 @@ MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimula
         }
     });
 
-    connect(ui->btnAddData, &QPushButton::clicked, this, &MainWindow::AddTestData);
-    connect(ui->btnAxisXApply, &QPushButton::clicked, this, &MainWindow::UpdateAxisX);
-    connect(ui->btnCheckWake, &QPushButton::clicked, this, &MainWindow::CheckWake);
-
     m_widgetsInTabs.append(ui->spinDebugOutVoltage);
     m_widgetsInTabs.append(ui->btnDebugOutVoltageSet);
     m_widgetsInTabs.append(ui->btnDebugOutVoltageGet);
@@ -171,55 +167,6 @@ void MainWindow::Telemetry(const QList<double> &current, double temperature, uin
     auto cur_mean = std::accumulate(current.begin(), current.end(), 0.0) / current.size();
     ui->labelTemperature->setText(tr("Temperature %1 °C").arg(temperature, 3, 'g', 3, '0'));    
     ui->labelCurrent->setText(tr("Current: %1 A").arg(cur_mean, 3, 'g', 3, '0'));
-}
-
-void MainWindow::AddTestData() {
-QList<double> data;
-static int last_data = 0;
-
-    for (int i(0); i < 16; ++i) {
-        data.append(i + last_data);
-    }
-
-    last_data += 16;
-    m_chartCurrent->addData(data);
-}
-
-void MainWindow::UpdateAxisX() {
-    auto min = ui->spinAxisXMin->value();
-    auto max = ui->spinAxisXMax->value();
-    logger->info("Set range to [{} : {}]", min, max);
-    m_chartCurrent->axisX()->setRange(min, max);
-}
-
-
-void MainWindow::CheckWake() {
-Wake *wake = new Wake(nullptr);
-
-QList<QByteArray> datas {
-        QByteArray::fromHex(QString("c0:55:5a:93:2d:08:00:10:00:10:00:10:00:08:00:08:00:10:00:10:00:08:00:08:00:10:00:10:00:10:00:08:00:08:00:10:00:08:00:00:00:08:00:08:00:08:00:08:00:08:00:08:00:10:00:08:00:08:00:10:00:10:00:10:00:08:00:08:00:08:00:10:00:08:00:08:00:08:00:08:00:10:00:10:00:00:00:f0:c1:00:00:00:00:35").replace(":", "").toLocal8Bit()),
-        QByteArray::fromHex(QString("c0:55:5a:99:2d:08:00:08:00:10:00:10:00:10:00:08:00:08:00:08:00:08:00:10:00:10:00:08:00:10:00:08:00:10:00:08:00:08:00:10:00:10:00:10:00:00:00:08:00:10:00:08:00:00:00:08:00:10:00:10:00:08:00:08:00:08:00:08:00:08:00:08:00:08:00:08:00:08:00:10:00:08:00:08:00:00:00:db:dc:c1:00:00:00:00:31").replace(":", "").toLocal8Bit())
-    };
-
-    connect(wake, &Wake::recvInvalid, [this](const QList<uint8_t> &data, uint8_t command) {
-        QByteArray a((const char *)data.constData(), data.size());
-        this->logger->warn("Recv invalid command {}, size {}: {}", command, data.size(), a.toHex(':').toStdString());
-    });
-
-    connect(wake, &Wake::recvValid, [this](const QList<uint8_t> &data, uint8_t command) {
-        QByteArray a((const char *)data.constData(), data.size());
-        this->logger->info("Recv valid command {}, size {}: {}", command, data.size(), a.toHex(':').toStdString());
-    });
-
-    for (auto &arr : datas) {
-        while (!arr.isEmpty()) {
-            auto b = (uint8_t)arr[0];
-            arr.removeFirst();
-            wake->ProcessInByte(b);
-        }
-    }
-
-    delete wake;
 }
 
 void MainWindow::commandExecute(SerialPortWorker::CommandError error, tec::Commands command, const QByteArray &data) {
