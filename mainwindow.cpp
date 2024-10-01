@@ -73,11 +73,13 @@ MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimula
 
     m_widgetsInTabs.append(ui->spinDebugOutVoltage);
     m_widgetsInTabs.append(ui->btnDebugOutVoltageSet);
+    m_widgetsInTabs.append(ui->btnDebugOutVoltageGet);
     for (auto w : m_widgetsInTabs) {
         w->setDisabled(true);
     }
 
     connect(ui->btnDebugOutVoltageSet, &QPushButton::clicked, [this](){ m_serialPortWorker->setOutputVoltage(ui->spinDebugOutVoltage->value()); });
+    connect(ui->btnDebugOutVoltageGet, &QPushButton::clicked, [this](){ m_serialPortWorker->getOutputVoltage(); });
 }
 
 MainWindow::~MainWindow() {
@@ -112,6 +114,7 @@ void MainWindow::SetConnected() {
     m_serialPortWorker = new SerialPortWorker(isSimulator);
     connect(m_serialPortWorker, &SerialPortWorker::error, this, &MainWindow::SerialError, static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
     connect(m_serialPortWorker, &SerialPortWorker::telemetryRecv, this, &MainWindow::Telemetry, Qt::QueuedConnection);
+    connect(m_serialPortWorker, &SerialPortWorker::commandExecute, this, &MainWindow::commandExecute, Qt::QueuedConnection);
     m_serialPortWorker->startReceiver(ui->cmbSerialPorts->currentData().toString(), 10);
 
     isConnected = true;
@@ -147,18 +150,9 @@ void MainWindow::PopulateSerialPorts() {
         return;
     }
 
-const auto serialPortInfos = QSerialPortInfo::availablePorts();
-QStringList serials;
-    for (const auto &portInfo : serialPortInfos) {
-        logger->info("Found port {}: {}", portInfo.portName().toStdString(), portInfo.description().toStdString());
-        if (portInfo.description().contains("CH340")) {
-            serials << portInfo.portName();
-        }
-    }
-
-    serials.sort();
-    for (const auto p : serials) {
-        ui->cmbSerialPorts->addItem(p, p);
+auto ports = SerialPortWorker::availablePorts();
+    for (const auto &p : ports) {
+        ui->cmbSerialPorts->addItem(p.first, p.second);
     }
     ui->cmbSerialPorts->addItem("Refresh", "__refresh__");
     ui->btnConnectDisconnect->setDisabled(ui->cmbSerialPorts->count() == 1);
@@ -226,4 +220,40 @@ QList<QByteArray> datas {
     }
 
     delete wake;
+}
+
+void MainWindow::commandExecute(SerialPortWorker::CommandError error, tec::Commands command, const QByteArray &data) {
+    logger->info("Command {} executed: {}. Size {}", qToUnderlying(command), static_cast<int>(error), data.size());
+
+    switch (error) {
+        case SerialPortWorker::CommandError::Busy:
+            for (auto w : m_widgetsInTabs) {
+                w->setDisabled(true);
+            }
+            break;
+
+        case SerialPortWorker::CommandError::NoError:
+            ParseGetRequest(command, data);
+        case SerialPortWorker::CommandError::Error:
+        case SerialPortWorker::CommandError::TimeoutError:
+            for (auto w : m_widgetsInTabs) {
+                w->setEnabled(true);
+            }
+            break;
+    }
+}
+
+
+void MainWindow::ParseGetRequest(tec::Commands command, const QByteArray &data) {
+float f_value;
+    switch (command) {
+        case tec::Commands::VoltageGetSet:
+            if (data.size() == sizeof(f_value)) {
+                ::memcpy(&f_value, data.constData(), data.size());
+                ui->spinDebugOutVoltage->setValue(f_value);
+            }
+            break;
+        default:
+            break;
+    }
 }

@@ -307,6 +307,13 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QPushButton" name="btnDebugOutVoltageGet">
+             <property name="text">
+              <string>Get</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
          <item>

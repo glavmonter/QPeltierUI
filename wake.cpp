@@ -26,6 +26,14 @@ Wake::~Wake() {
     logger->info("Destroy");
 }
 
+const QByteArray Wake::dataArray() const {
+    if (m_receivedData.size() == 0) {
+        return QByteArray();
+    }
+
+QByteArray arr(reinterpret_cast<const char *>(m_receivedData.constData()), m_receivedData.size());
+    return arr;
+}
 
 Wake::Status Wake::ProcessInByte(uint8_t data) {
 Wake::Status ret = Wake::Status::INIT;
@@ -123,16 +131,15 @@ Wake::Status ret = Wake::Status::INIT;
     return ret;
 }
 
-QByteArray Wake::PrepareTx(Commands command, const QByteArray &data) {
+QByteArray Wake::PrepareTx(uint8_t command, const QByteArray &data) {
 QByteArray out;
 uint8_t crc = CRC_INIT;
 
     Do_Crc8(WAKE_CODE_FEND, &crc);
     out.append(WAKE_CODE_FEND);
 
-    auto cmd = qToUnderlying(command);
-    Do_Crc8(cmd, &crc);
-    out = StuffTx(out, cmd);
+    Do_Crc8(command, &crc);
+    out = StuffTx(out, command);
 
     auto nbt = data.size();
     Do_Crc8(nbt, &crc);

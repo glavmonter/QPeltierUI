@@ -4,11 +4,6 @@
 #include <QObject>
 #include <spdlog/spdlog.h>
 
-enum class Commands : uint8_t {
-    SetVoltage = 0x04,
-    Telemetry = 0x55,
-};
-
 class Wake : public QObject {
     Q_OBJECT
 
@@ -23,10 +18,10 @@ public:
     };
 
     Status ProcessInByte(uint8_t data);
-    uint16_t command() const { return m_receivedCommand; }
+    uint8_t command() const { return m_receivedCommand; }
     const QList<uint8_t> &data() const { return m_receivedData; }
-
-    static QByteArray PrepareTx(Commands command, const QByteArray &data);
+    const QByteArray dataArray() const;
+    static QByteArray PrepareTx(uint8_t command, const QByteArray &data);
 
 signals:
     void recvValid(const QList<uint8_t> &data, uint8_t command);

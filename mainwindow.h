@@ -30,7 +30,7 @@ public:
     void SetConnected();
     void SetDisconnected();
     void PopulateSerialPorts();
-        std::shared_ptr<spdlog::logger> logger;
+    std::shared_ptr<spdlog::logger> logger;
 
 private:
     Ui::MainWindow *ui;
@@ -46,10 +46,14 @@ private:
     RecorderWidget *m_chartTemperature;
     QList<QWidget *> m_widgetsInTabs;
 
+    void ParseGetRequest(tec::Commands command, const QByteArray &data);
+    
 public slots:
     void SerialError(const QString &s);
     void Telemetry(const QList<double> &current, double temperature, uint32_t status);
-
+    
+    void commandExecute(SerialPortWorker::CommandError error, tec::Commands command, const QByteArray &data);
+    
     void AddTestData();
     void UpdateAxisX();
 

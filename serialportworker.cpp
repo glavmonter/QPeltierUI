@@ -1,4 +1,6 @@
 #include <QSerialPort>
+#include <QSerialPortInfo>
+#include "commands.hpp"
 #include "serialportworker.h"
 
 #define SIMULATOR_CURRENT_COUNTER   (40)    ///< 40 измерений тока
@@ -78,6 +80,7 @@ void SerialPortWorker::runSerial() {
     Wake wake;
     QSerialPort serial;
     QByteArray recvData;
+    QDeadlineTimer dealineTimer;
 
     connect(&serial, &QSerialPort::errorOccurred, [this, &serial](QSerialPort::SerialPortError err) {
         switch (err) {
@@ -124,11 +127,18 @@ void SerialPortWorker::runSerial() {
             auto b = (uint8_t)recvData[0];
             recvData.removeAt(0);
             if (wake.ProcessInByte(b) == Wake::Status::READY) {
-                if (wake.command() != qToUnderlying(Commands::Telemetry) || recvData.size() > 0) {
-                    logger->info("Received Wake. Remain {} bytes", recvData.size());
+                if (wake.command() != qToUnderlying(tec::Commands::Telemetry)) {
+                    logger->info("Received Wake {}. Remain {} bytes", wake.command(), recvData.size());
+                    
+                    m_mutex.lock();
+                    if (m_commandPending == wake.command()) {
+                        m_commandPending = qToUnderlying(tec::Commands::Invalid);
+                        emit commandExecute(CommandError::NoError, static_cast<tec::Commands>(wake.command()), wake.dataArray());
+                    }
+                    m_mutex.unlock();
                 }
 
-                if (wake.command() == qToUnderlying(Commands::Telemetry)) {
+                if (wake.command() == qToUnderlying(tec::Commands::Telemetry)) {
                     ParseTelemetryRecord(wake.data());
                 }
                 break;
@@ -147,26 +157,44 @@ void SerialPortWorker::runSerial() {
         if (m_txDataPending.size() > 0) {
             logger->info("Transmit");
             serial.write(m_txDataPending);
-            serial.waitForBytesWritten(100);
             m_txDataPending.clear();
+            dealineTimer.setRemainingTime(m_commandTimeout);
+        }
+
+        if (m_commandPending != qToUnderlying(tec::Commands::Invalid) && dealineTimer.hasExpired()) {
+            logger->warn("Command: {} timeout", m_commandPending);
+            emit commandExecute(CommandError::TimeoutError, static_cast<tec::Commands>(m_commandPending), QByteArray());
+            m_commandPending = qToUnderlying(tec::Commands::Invalid);
         }
         m_mutex.unlock();
     }
 }
 
 
-void SerialPortWorker::setOutputVoltage(double voltagePercent) {
-float v = static_cast<float>(voltagePercent);
-QByteArray arr;
-    arr.append(reinterpret_cast<const char *>(&v), 4);
-    arr = Wake::PrepareTx(Commands::SetVoltage, arr);
-    
+void SerialPortWorker::commandTransmit(tec::Commands cmd, const QByteArray &tx) {
     if (m_mutex.tryLock(100)) {
-        m_txDataPending = arr;
+        m_commandPending = qToUnderlying(cmd);
+        m_txDataPending = tx;
         m_mutex.unlock();
     }
+    emit commandExecute(CommandError::Busy, cmd, QByteArray());
 }
 
+
+void SerialPortWorker::setOutputVoltage(double voltagePercent) {
+float v = static_cast<float>(voltagePercent);
+auto cmd = tec::Commands::VoltageGetSet;
+QByteArray arr;
+    arr.append(reinterpret_cast<const char *>(&v), 4);
+    arr = Wake::PrepareTx(qToUnderlying(cmd), arr);
+    commandTransmit(cmd, arr);    
+}
+
+void SerialPortWorker::getOutputVoltage() {
+auto cmd = tec::Commands::VoltageGetSet;
+    auto arr = Wake::PrepareTx(qToUnderlying(cmd), QByteArray());
+    commandTransmit(cmd, arr);
+}
 
 void SerialPortWorker::recvValid(const QList<uint8_t> &data, uint8_t command) {
 QByteArray a((const char *)data.constData(), data.size());
@@ -209,4 +237,24 @@ int16_t c;
 
 float temperature = *p_temperature;
     emit telemetryRecv(current, temperature, 2);
+}
+
+
+QList<QPair<QString, QString>> SerialPortWorker::availablePorts() {
+QList<QPair<QString, QString>> ret;
+const auto serialPortInfos = QSerialPortInfo::availablePorts();
+QStringList serials;
+
+    for (const auto &portInfo : serialPortInfos) {
+        if (portInfo.description().contains("CH340")) {
+            serials << portInfo.portName();
+        }
+    }
+
+    serials.sort();
+    for (const auto p : serials) {
+        ret.append(QPair(p, p));    
+    }
+
+    return ret;
 }
