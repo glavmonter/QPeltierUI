@@ -67,9 +67,10 @@ MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimula
         }
     });
 
-    m_widgetsInTabs.append(ui->spinDebugOutVoltage);
-    m_widgetsInTabs.append(ui->btnDebugOutVoltageSet);
-    m_widgetsInTabs.append(ui->btnDebugOutVoltageGet);
+    m_widgetsInTabs.append(ui->tabPageCommon);
+    m_widgetsInTabs.append(ui->tabPageCurrent);
+    m_widgetsInTabs.append(ui->tabPageTemperature);
+    m_widgetsInTabs.append(ui->tabPageDebug);
     for (auto w : m_widgetsInTabs) {
         w->setDisabled(true);
     }

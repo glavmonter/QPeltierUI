@@ -9,3 +9,4 @@ tmp/
 CMakeSettings.json
 .venv/
 __pycache__
+Releases/
