@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 3.16)
-project(QPeltierUI)
+cmake_minimum_required(VERSION 3.17)
+include(common/cmake/macro-add-python.cmake)
+include(common/cmake/function-generate-commands.cmake)
+
+project(QPeltierUI CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_AUTOMOC ON)
@@ -29,6 +32,9 @@ if (CMAKE_BUILD_TYPE MATCHES "Debug")
     set(DEBUG_SUFFIX "d")
 endif ()
 
+add_python_venv(${CMAKE_SOURCE_DIR}/common/requirements.txt)
+generate_commands(${CMAKE_SOURCE_DIR}/common/commands.json)
+
 set(QPELTIERUI_SRC
         main.cpp
         mainwindow.cpp
@@ -40,7 +46,7 @@ set(QPELTIERUI_SRC
 
 set(APP_VERSION "1.0.0.0")
 
-add_executable(QPeltierUI ${WINAPP} ${QPELTIERUI_SRC} ${PLATFORM_SRC} ${APP_ICON_RESOURCE_WINDOWS})
+add_executable(QPeltierUI ${WINAPP} ${QPELTIERUI_SRC} ${COMMANDS_SRC} ${APP_ICON_RESOURCE_WINDOWS})
 target_compile_definitions(QPeltierUI PUBLIC "-D_APP_VERSION=\"${APP_VERSION}\"")
 target_include_directories(QPeltierUI PUBLIC inc)
 target_link_libraries(QPeltierUI PRIVATE

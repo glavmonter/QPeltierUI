@@ -74,9 +74,6 @@ MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimula
     for (auto w : m_widgetsInTabs) {
         w->setDisabled(true);
     }
-
-    connect(ui->btnDebugOutVoltageSet, &QPushButton::clicked, [this](){ m_serialPortWorker->setOutputVoltage(ui->spinDebugOutVoltage->value()); });
-    connect(ui->btnDebugOutVoltageGet, &QPushButton::clicked, [this](){ m_serialPortWorker->getOutputVoltage(); });
 }
 
 MainWindow::~MainWindow() {
@@ -112,6 +109,7 @@ void MainWindow::SetConnected() {
     connect(m_serialPortWorker, &SerialPortWorker::error, this, &MainWindow::SerialError, static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
     connect(m_serialPortWorker, &SerialPortWorker::telemetryRecv, this, &MainWindow::Telemetry, Qt::QueuedConnection);
     connect(m_serialPortWorker, &SerialPortWorker::commandExecute, this, &MainWindow::commandExecute, Qt::QueuedConnection);
+    ConnectButtonsToSerialWorker();
     m_serialPortWorker->startReceiver(ui->cmbSerialPorts->currentData().toString(), 10);
 
     isConnected = true;
@@ -122,6 +120,41 @@ void MainWindow::SetConnected() {
         w->setEnabled(true);
     }
 }
+
+void MainWindow::ConnectButtonsToSerialWorker() {
+    connect(ui->btnCurrentPidPGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
+    connect(ui->btnCurrentPidIGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
+    connect(ui->btnDebugOutVoltageGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
+
+    connect(ui->btnCurrentPidPSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+    connect(ui->btnCurrentPidISet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+    connect(ui->btnDebugOutVoltageSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+}
+
+void MainWindow::buttonGetClicked() {
+    if (sender() == ui->btnDebugOutVoltageGet) {
+        m_serialPortWorker->getOutputVoltage();
+    } else if (sender() == ui->btnCurrentPidPGet) {
+        m_serialPortWorker->getCurrentPid(PidVariableType::Proportional);
+    } else if (sender() == ui->btnCurrentPidIGet) {
+        m_serialPortWorker->getCurrentPid(PidVariableType::Integral);
+    } else if (sender() == ui->btnCurrentPidWindUpGet) {
+        m_serialPortWorker->getCurrentPid(PidVariableType::WindUp);
+    }
+}
+
+void MainWindow::buttonSetClicked() {
+    if (sender() == ui->btnDebugOutVoltageSet) {
+        m_serialPortWorker->setOutputVoltage(ui->spinDebugOutVoltage->value());
+    } else if (sender() == ui->btnCurrentPidPSet) {
+        m_serialPortWorker->setCurrentPid(PidVariableType::Proportional, ui->spinCurrentPidP->value());
+    } else if (sender() == ui->btnCurrentPidISet) {
+        m_serialPortWorker->setCurrentPid(PidVariableType::Integral, ui->spinCurrentPidI->value());
+    } else if (sender() == ui->btnCurrentPidWindUpSet) {
+        m_serialPortWorker->setCurrentPid(PidVariableType::WindUp, ui->spinCurrentPidWindUp->value());
+    }
+}
+
 
 void MainWindow::SetDisconnected() {
     if (m_serialPortWorker) {
@@ -194,6 +227,7 @@ void MainWindow::commandExecute(SerialPortWorker::CommandError error, tec::Comma
 
 void MainWindow::ParseGetRequest(tec::Commands command, const QByteArray &data) {
 float f_value;
+
     switch (command) {
         case tec::Commands::VoltageGetSet:
             if (data.size() == sizeof(f_value)) {
@@ -201,6 +235,24 @@ float f_value;
                 ui->spinDebugOutVoltage->setValue(f_value);
             }
             break;
+
+        case tec::Commands::CurrentPidGetSet:
+            if (data.size() == sizeof(f_value) + 1) {
+                ::memcpy(&f_value, data.constData() + 1, data.size() - 1);
+                switch (data[0]) {
+                    case PidVariableType::Proportional:
+                        ui->spinCurrentPidP->setValue(f_value);
+                        break;
+                    case PidVariableType::Integral:
+                        ui->spinCurrentPidI->setValue(f_value);
+                        break;
+                    case PidVariableType::WindUp:
+                        ui->spinCurrentPidWindUp->setValue(f_value);
+                        break;
+                }
+            }
+            break;
+
         default:
             break;
     }

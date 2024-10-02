@@ -1,6 +1,6 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
-#include "commands.hpp"
+#include <commands.hpp>
 #include "serialportworker.h"
 
 #define SIMULATOR_CURRENT_COUNTER   (40)    ///< 40 измерений тока
@@ -194,6 +194,26 @@ void SerialPortWorker::getOutputVoltage() {
 auto cmd = tec::Commands::VoltageGetSet;
     auto arr = Wake::PrepareTx(qToUnderlying(cmd), QByteArray());
     commandTransmit(cmd, arr);
+}
+
+void SerialPortWorker::setCurrentPid(PidVariableType type, double value) {
+auto cmd = tec::Commands::CurrentPidGetSet;
+float v = static_cast<float>(value);
+QByteArray arr;
+    arr.append(type);
+    arr.append(reinterpret_cast<const char *>(&v), 4);
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), arr));
+}
+
+void SerialPortWorker::getCurrentPid(PidVariableType type) {
+auto cmd = tec::Commands::CurrentPidGetSet;
+QByteArray arr;
+    arr.append(type);
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), arr));
+}
+
+void SerialPortWorker::sendFrame(tec::Commands cmd, const QByteArray &data) {
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), data));
 }
 
 void SerialPortWorker::recvValid(const QList<uint8_t> &data, uint8_t command) {

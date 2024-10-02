@@ -7,7 +7,7 @@
 #include <QSerialPort>
 #include "spdlog/spdlog.h"
 #include "wake.h"
-#include "commands.hpp"
+#include <commands.hpp>
 
 class SerialPortWorker : public QThread {
     Q_OBJECT
@@ -36,9 +36,14 @@ public slots:
     void recvValid(const QList<uint8_t> &data, uint8_t command);
     void recvInvalid(const QList<uint8_t> &data, uint8_t command);
     
+    void sendFrame(tec::Commands cmd, const QByteArray &data);
+
     void setOutputVoltage(double voltagePercent);
     void getOutputVoltage();
     void setCommandTimeout(qint64 timeoutMs) { m_commandTimeout = timeoutMs; }
+    
+    void setCurrentPid(PidVariableType type, double value);
+    void getCurrentPid(PidVariableType type);
 
 private:
 static const int TelementrySize = 90;

@@ -36,7 +36,7 @@ private:
     Ui::MainWindow *ui;
     SerialPortWorker *m_serialPortWorker = nullptr;
 
-
+    void ConnectButtonsToSerialWorker();
     double m_graphTemperatureShowTime = 30;     ///< Длина отображения графика температуры, секунд
     double m_graphCurrentShowTime = 10;         ///< Длина отображения графика тока, секунд
 
@@ -51,7 +51,10 @@ private:
 public slots:
     void SerialError(const QString &s);
     void Telemetry(const QList<double> &current, double temperature, uint32_t status);
-    void commandExecute(SerialPortWorker::CommandError error, tec::Commands command, const QByteArray &data);    
+    void commandExecute(SerialPortWorker::CommandError error, tec::Commands command, const QByteArray &data);
+    
+    void buttonGetClicked();
+    void buttonSetClicked();
 };
 
 #endif // MAINWINDOW_H
