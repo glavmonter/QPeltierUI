@@ -212,6 +212,31 @@ QByteArray arr;
     commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), arr));
 }
 
+void SerialPortWorker::setWorkMode(WorkMode mode) {
+auto cmd = tec::Commands::WorkModeSetGet;
+QByteArray arr;
+    arr.append(qToUnderlying(mode));
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), arr));
+}
+
+void SerialPortWorker::getWorkMode() {
+auto cmd = tec::Commands::WorkModeSetGet;
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), QByteArray()));
+}
+
+void SerialPortWorker::setDebugCurrent(double value) {
+auto cmd = tec::Commands::CurrentStabGetSet;
+float v = static_cast<float>(value);
+QByteArray arr;
+    arr.append(reinterpret_cast<const char *>(&v), 4);
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), arr));
+}
+
+void SerialPortWorker::getDebugCurrent() {
+auto cmd = tec::Commands::CurrentStabGetSet;
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), QByteArray()));
+}
+
 void SerialPortWorker::sendFrame(tec::Commands cmd, const QByteArray &data) {
     commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), data));
 }

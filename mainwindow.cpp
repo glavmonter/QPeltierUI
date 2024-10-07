@@ -12,6 +12,7 @@
 #include <QSerialPortInfo>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <proto.hpp>
 
 MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimulator), QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
@@ -44,6 +45,12 @@ MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimula
     spdlog::register_logger(logger);
 
     logger->info("Init QPeltierUI");
+
+    ui->cmbWorkMode->addItem("Stopped", qToUnderlying(WorkMode::Stopped));
+    ui->cmbWorkMode->addItem("Current Source", qToUnderlying(WorkMode::CurrentSource));
+    ui->cmbWorkMode->addItem("Temperature", qToUnderlying(WorkMode::TemperatureStab));
+    ui->cmbWorkMode->addItem("Debug", qToUnderlying(WorkMode::Debug));
+    ui->cmbWorkMode->setCurrentIndex(0);
 
     ConfigureCharts();
 
@@ -124,11 +131,18 @@ void MainWindow::SetConnected() {
 void MainWindow::ConnectButtonsToSerialWorker() {
     connect(ui->btnCurrentPidPGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
     connect(ui->btnCurrentPidIGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
+    connect(ui->btnCurrentPidWindUpGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
     connect(ui->btnDebugOutVoltageGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
+    connect(ui->btnWorkModeGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
+    connect(ui->btnDebugCurrentGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
 
     connect(ui->btnCurrentPidPSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
     connect(ui->btnCurrentPidISet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+    connect(ui->btnCurrentPidWindUpSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+    connect(ui->btnDebugCurrentSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+    
     connect(ui->btnDebugOutVoltageSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+    connect(ui->btnWorkModeSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
 }
 
 void MainWindow::buttonGetClicked() {
@@ -140,6 +154,10 @@ void MainWindow::buttonGetClicked() {
         m_serialPortWorker->getCurrentPid(PidVariableType::Integral);
     } else if (sender() == ui->btnCurrentPidWindUpGet) {
         m_serialPortWorker->getCurrentPid(PidVariableType::WindUp);
+    } else if (sender() == ui->btnWorkModeGet) {
+        m_serialPortWorker->getWorkMode();
+    } else if (sender() == ui->btnDebugCurrentGet) {
+        m_serialPortWorker->getDebugCurrent();
     }
 }
 
@@ -152,6 +170,10 @@ void MainWindow::buttonSetClicked() {
         m_serialPortWorker->setCurrentPid(PidVariableType::Integral, ui->spinCurrentPidI->value());
     } else if (sender() == ui->btnCurrentPidWindUpSet) {
         m_serialPortWorker->setCurrentPid(PidVariableType::WindUp, ui->spinCurrentPidWindUp->value());
+    } else if (sender() == ui->btnWorkModeSet) {
+        m_serialPortWorker->setWorkMode(static_cast<WorkMode>(ui->cmbWorkMode->currentData().toInt()));
+    } else if (sender() == ui->btnDebugCurrentSet) {
+        m_serialPortWorker->setDebugCurrent(ui->spinDebugCurrent->value());
     }
 }
 
@@ -227,6 +249,7 @@ void MainWindow::commandExecute(SerialPortWorker::CommandError error, tec::Comma
 
 void MainWindow::ParseGetRequest(tec::Commands command, const QByteArray &data) {
 float f_value;
+WorkMode wm;
 
     switch (command) {
         case tec::Commands::VoltageGetSet:
@@ -250,6 +273,22 @@ float f_value;
                         ui->spinCurrentPidWindUp->setValue(f_value);
                         break;
                 }
+            }
+            break;
+
+        case tec::Commands::WorkModeSetGet:
+            if (data.size() == 1) {
+                int index = ui->cmbWorkMode->findData(data[0]);
+                if (index >= 0) {
+                    ui->cmbWorkMode->setCurrentIndex(data[0]);
+                }
+            }
+            break;
+
+        case tec::Commands::CurrentStabGetSet:
+            if (data.size() == 4) {
+                ::memcpy(&f_value, data.constData(), data.size());
+                ui->spinDebugCurrent->setValue(f_value);
             }
             break;
 

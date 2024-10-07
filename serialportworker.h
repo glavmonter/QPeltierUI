@@ -7,6 +7,7 @@
 #include <QSerialPort>
 #include "spdlog/spdlog.h"
 #include "wake.h"
+#include <proto.hpp>
 #include <commands.hpp>
 
 class SerialPortWorker : public QThread {
@@ -44,6 +45,12 @@ public slots:
     
     void setCurrentPid(PidVariableType type, double value);
     void getCurrentPid(PidVariableType type);
+
+    void setDebugCurrent(double value);
+    void getDebugCurrent();
+
+    void setWorkMode(WorkMode mode);
+    void getWorkMode();
 
 private:
 static const int TelementrySize = 90;

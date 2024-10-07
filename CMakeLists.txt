@@ -45,6 +45,7 @@ set(QPELTIERUI_SRC
         )
 
 set(APP_VERSION "1.0.0.0")
+include_directories(common)
 
 add_executable(QPeltierUI ${WINAPP} ${QPELTIERUI_SRC} ${COMMANDS_SRC} ${APP_ICON_RESOURCE_WINDOWS})
 target_compile_definitions(QPeltierUI PUBLIC "-D_APP_VERSION=\"${APP_VERSION}\"")
