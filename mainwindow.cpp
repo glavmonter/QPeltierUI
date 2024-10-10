@@ -8,6 +8,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #endif
 
+#include <QDateTime>
 #include <QTimer>
 #include <QSerialPortInfo>
 #include "mainwindow.h"
@@ -74,6 +75,8 @@ MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimula
         }
     });
 
+    connect(ui->btnRecordCurrent, &QPushButton::clicked, this, &MainWindow::buttonRecordClicked);
+
     m_widgetsInTabs.append(ui->tabPageCommon);
     m_widgetsInTabs.append(ui->tabPageCurrent);
     m_widgetsInTabs.append(ui->tabPageTemperature);
@@ -99,7 +102,8 @@ void MainWindow::ConfigureCharts() {
     m_chartTemperature->axisY()->setTitleText("Temperature, C");
     m_chartTemperature->axisY()->setRange(-1, 1);
     m_chartTemperature->setRecordParameters(20e-3, 30); // 20 мс/тик, 30 секунд записи
-
+    m_chartTemperature->setVerticalRange(0.05);
+    
     ui->chartViewCurrent->setChart(m_chartCurrent);
     ui->chartViewTemperature->setChart(m_chartTemperature);
 }
@@ -136,11 +140,23 @@ void MainWindow::ConnectButtonsToSerialWorker() {
     connect(ui->btnWorkModeGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
     connect(ui->btnDebugCurrentGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
 
+    connect(ui->btnTemperaturePidPGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
+    connect(ui->btnTemperaturePidIGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
+    connect(ui->btnTemperaturePidDGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
+    connect(ui->btnTemperaturePidWindupGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
+    connect(ui->btnTemperatureGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
+
     connect(ui->btnCurrentPidPSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
     connect(ui->btnCurrentPidISet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
     connect(ui->btnCurrentPidWindUpSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
     connect(ui->btnDebugCurrentSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
     
+    connect(ui->btnTemperaturePidPSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+    connect(ui->btnTemperaturePidISet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+    connect(ui->btnTemperaturePidDSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+    connect(ui->btnTemperaturePidWindupSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+    connect(ui->btnTemperatureSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+
     connect(ui->btnDebugOutVoltageSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
     connect(ui->btnWorkModeSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
 }
@@ -158,6 +174,16 @@ void MainWindow::buttonGetClicked() {
         m_serialPortWorker->getWorkMode();
     } else if (sender() == ui->btnDebugCurrentGet) {
         m_serialPortWorker->getDebugCurrent();
+    } else if (sender() == ui->btnTemperaturePidPGet) {
+        m_serialPortWorker->getTemperaturePid(PidVariableType::Proportional);
+    } else if (sender() == ui->btnTemperaturePidIGet) {
+        m_serialPortWorker->getTemperaturePid(PidVariableType::Integral);
+    } else if (sender() == ui->btnTemperaturePidDGet) {
+        m_serialPortWorker->getTemperaturePid(PidVariableType::Derivative);
+    } else if (sender() == ui->btnTemperaturePidWindupGet) {
+        m_serialPortWorker->getTemperaturePid(PidVariableType::WindUp);
+    } else if (sender() == ui->btnTemperatureGet) {
+        m_serialPortWorker->getTemperature();
     }
 }
 
@@ -174,9 +200,42 @@ void MainWindow::buttonSetClicked() {
         m_serialPortWorker->setWorkMode(static_cast<WorkMode>(ui->cmbWorkMode->currentData().toInt()));
     } else if (sender() == ui->btnDebugCurrentSet) {
         m_serialPortWorker->setDebugCurrent(ui->spinDebugCurrent->value());
+    } else if (sender() == ui->btnTemperaturePidPSet) {
+        m_serialPortWorker->setTemperaturePid(PidVariableType::Proportional, ui->spinTemperaturePidP->value());
+    } else if (sender() == ui->btnTemperaturePidISet) {
+        m_serialPortWorker->setTemperaturePid(PidVariableType::Integral, ui->spinTemperaturePidI->value());
+    } else if (sender() == ui->btnTemperaturePidDSet) {
+        m_serialPortWorker->setTemperaturePid(PidVariableType::Derivative, ui->spinTemperaturePidD->value());
+    } else if (sender() == ui->btnTemperaturePidWindupSet) {
+        m_serialPortWorker->setTemperaturePid(PidVariableType::WindUp, ui->spinTemperaturePidWindup->value());
+    } else if (sender() == ui->btnTemperatureSet) {
+        m_serialPortWorker->setTemperature(ui->spinTemperature->value());
     }
 }
 
+void MainWindow::buttonRecordClicked() {
+    if (m_recordFileName.isEmpty()) {
+        ui->btnRecordCurrent->setText("Stop Record");
+        m_recordFileName = QString("Record-%1.csv").arg(QDateTime::currentDateTime().toString("dd.MM.yy-hh_mm_ss_zzz"));
+        ui->lblRecordCurrentFileName->setText(QString("`%1`").arg(m_recordFileName));
+        if (m_recordFile) {
+            m_recordFile->close();
+            m_recordFile = nullptr;
+        }
+
+        m_recordFile = new QFile(m_recordFileName);
+        m_recordFile->open(QIODevice::WriteOnly | QIODevice::Truncate);
+        m_recordFile->write(QString("Index; Time [s]; Current[A]\n").toLatin1());
+        m_recordIndex = 0;
+    } else {
+        ui->btnRecordCurrent->setText("Start Record");
+        ui->lblRecordCurrentFileName->setText(QString("`%1` stopped, %2 s").arg(m_recordFileName).arg(RecordIndexToTime(m_recordIndex, m_chartCurrent->timebase())));
+        m_recordFileName.clear();
+        m_recordFile->close();
+        m_recordFile = nullptr;
+    }
+}
+   
 
 void MainWindow::SetDisconnected() {
     if (m_serialPortWorker) {
@@ -190,6 +249,10 @@ void MainWindow::SetDisconnected() {
 
     for (auto w : m_widgetsInTabs) {
         w->setDisabled(true);
+    }
+
+    if (!m_recordFileName.isEmpty()) {
+        buttonRecordClicked();
     }
 }
 
@@ -219,10 +282,32 @@ void MainWindow::SerialError(const QString &s) {
 void MainWindow::Telemetry(const QList<double> &current, double temperature, uint32_t status) {
     m_chartCurrent->addData(current);
     m_chartTemperature->addData(temperature);
+    RecordTelemetry(current);
 
     auto cur_mean = std::accumulate(current.begin(), current.end(), 0.0) / current.size();
-    ui->labelTemperature->setText(tr("Temperature %1 °C").arg(temperature, 3, 'g', 3, '0'));    
-    ui->labelCurrent->setText(tr("Current: %1 A").arg(cur_mean, 3, 'g', 3, '0'));
+    ui->labelTemperature->setText(tr("Temperature %1 °C").arg(temperature, 0, 'g', 4, '0'));    
+    ui->labelCurrent->setText(tr("Current: %1 A").arg(cur_mean, 0, 'g', 3, '0'));
+}
+
+QString MainWindow::RecordIndexToTime(qint64 index, double timebase) {
+    return QString("%1").arg(index * timebase, 4, 'g', 5, ' ').replace('.', ',');
+}
+    
+void MainWindow::RecordTelemetry(const QList<double> &current) {
+    if (m_recordFile == nullptr) {
+        return;
+    }
+
+    QString time;
+    for (const double &c : current) {
+        time = RecordIndexToTime(m_recordIndex, m_chartCurrent->timebase());
+        QString value = QString("%1").arg(c, 4, 'g', 5, '0').replace('.', ',');
+        QString rec = QString("%1; %2; %3\n").arg(m_recordIndex).arg(time).arg(value);
+        m_recordFile->write(rec.toLatin1());
+        m_recordIndex++;
+    }
+
+    ui->lblRecordCurrentFileName->setText(QString("`%1` - %2 s").arg(m_recordFileName).arg(time));
 }
 
 void MainWindow::commandExecute(SerialPortWorker::CommandError error, tec::Commands command, const QByteArray &data) {
@@ -289,6 +374,33 @@ WorkMode wm;
             if (data.size() == 4) {
                 ::memcpy(&f_value, data.constData(), data.size());
                 ui->spinDebugCurrent->setValue(f_value);
+            }
+            break;
+
+        case tec::Commands::TemperaturePidGetSet:
+            if (data.size() == sizeof(f_value) + 1) {
+                ::memcpy(&f_value, data.constData() + 1, data.size() - 1);
+                switch (data[0]) {
+                    case PidVariableType::Proportional:
+                        ui->spinTemperaturePidP->setValue(f_value);
+                        break;
+                    case PidVariableType::Integral:
+                        ui->spinTemperaturePidI->setValue(f_value);
+                        break;
+                    case PidVariableType::Derivative:
+                        ui->spinTemperaturePidD->setValue(f_value);
+                        break;
+                    case PidVariableType::WindUp:
+                        ui->spinTemperaturePidWindup->setValue(f_value);
+                        break;
+                }
+            }
+            break;
+
+        case tec::Commands::TemperatureStabGetSet:
+            if (data.size() == 4) {
+                ::memcpy(&f_value, data.constData(), data.size());
+                ui->spinTemperature->setValue(f_value);
             }
             break;
 

@@ -20,6 +20,8 @@ public:
     void clear();
 
     void setRecordParameters(double tick, double recordTime);
+    double timebase() const { return m_tickTime; }
+    void setVerticalRange(double range);
 
 private:
     QLineSeries *m_series;
@@ -27,7 +29,7 @@ private:
     QValueAxis *m_axisY;
 
     QList<QPointF> m_buffer;
-    
+    double m_vericalRange = 0.1;      
     double m_tickTime;          ///< Время одного тика, секунд
     double m_recordTime;        ///< Полное отображаемое время, секунд
     int m_bufferMaxSize;

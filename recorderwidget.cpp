@@ -95,13 +95,17 @@ static const int resolution = 1;
             }
         }
 
-        m_axisY->setRange(min - 0.1, max + 0.1);
+        m_axisY->setRange(min - m_vericalRange, max + m_vericalRange);
     }
 }
 
 void RecorderWidget::addData(double data) {
 QVector<double> d({data});
     addData(d);
+}
+
+void RecorderWidget::setVerticalRange(double range) {
+    m_vericalRange = range;    
 }
 
 /**

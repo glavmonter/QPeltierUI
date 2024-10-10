@@ -212,6 +212,35 @@ QByteArray arr;
     commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), arr));
 }
 
+void SerialPortWorker::setTemperaturePid(PidVariableType type, double value) {
+auto cmd = tec::Commands::TemperaturePidGetSet;
+float v = static_cast<float>(value);
+QByteArray arr;
+    arr.append(type);
+    arr.append(reinterpret_cast<const char *>(&v), 4);
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), arr));
+}
+
+void SerialPortWorker::getTemperaturePid(PidVariableType type) {
+auto cmd = tec::Commands::TemperaturePidGetSet;
+QByteArray arr;
+    arr.append(type);
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), arr));
+}
+
+void SerialPortWorker::setTemperature(double value) {
+auto cmd = tec::Commands::TemperatureStabGetSet;
+float v = static_cast<float>(value);
+QByteArray arr;
+    arr.append(reinterpret_cast<const char *>(&v), 4);
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), arr));
+}
+
+void SerialPortWorker::getTemperature() {
+auto cmd = tec::Commands::TemperatureStabGetSet;
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), QByteArray()));
+}
+
 void SerialPortWorker::setWorkMode(WorkMode mode) {
 auto cmd = tec::Commands::WorkModeSetGet;
 QByteArray arr;

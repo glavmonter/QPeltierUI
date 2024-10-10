@@ -44,6 +44,29 @@
             "args": [
                 "c0:55:5a:99:2d:08:00:08:00:10:00:10:00:10:00:08:00:08:00:08:00:08:00:10:00:10:00:08:00:10:00:08:00:10:00:08:00:08:00:10:00:10:00:10:00:00:00:08:00:10:00:08:00:00:00:08:00:10:00:10:00:08:00:08:00:08:00:08:00:08:00:08:00:08:00:08:00:08:00:10:00:08:00:08:00:00:00:db:dc:c1:00:00:00:00:31"
             ]
+        },
+
+        {
+            "name": "show.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceRoot}/Utils/show.py",
+            "console": "integratedTerminal",
+            "args": [
+                "Utils/RealCurrent.csv"
+            ]
+        },
+
+        {
+            "name": "filter.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceRoot}/Utils/filter.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-f 2",
+                "Utils/RealCurrent.csv"
+            ]
         }
     ]
 }

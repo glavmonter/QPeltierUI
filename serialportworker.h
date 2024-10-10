@@ -45,6 +45,12 @@ public slots:
     
     void setCurrentPid(PidVariableType type, double value);
     void getCurrentPid(PidVariableType type);
+    
+    void setTemperaturePid(PidVariableType type, double value);
+    void getTemperaturePid(PidVariableType type);
+
+    void setTemperature(double value);
+    void getTemperature();
 
     void setDebugCurrent(double value);
     void getDebugCurrent();

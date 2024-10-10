@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1142</width>
-    <height>941</height>
+    <width>1035</width>
+    <height>988</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>QPeltierUI</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_3">
+   <layout class="QHBoxLayout" name="horizontalLayout_5">
     <item>
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
@@ -125,7 +125,7 @@
       </widget>
       <widget class="QTabWidget" name="tabSettings">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+        <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -134,7 +134,7 @@
         <enum>Qt::LayoutDirection::LeftToRight</enum>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="tabPageCommon">
         <attribute name="title">
@@ -186,10 +186,13 @@
            <property name="orientation">
             <enum>Qt::Orientation::Vertical</enum>
            </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Policy::Expanding</enum>
+           </property>
            <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
-             <height>646</height>
+             <height>40</height>
             </size>
            </property>
           </spacer>
@@ -479,6 +482,20 @@
           </layout>
          </item>
          <item>
+          <widget class="QPushButton" name="btnRecordCurrent">
+           <property name="text">
+            <string>Start Record</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lblRecordCurrentFileName">
+           <property name="text">
+            <string>Record stopped</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="verticalSpacer_4">
            <property name="orientation">
             <enum>Qt::Orientation::Vertical</enum>
@@ -486,7 +503,7 @@
            <property name="sizeHint" stdset="0">
             <size>
              <width>17</width>
-             <height>658</height>
+             <height>653</height>
             </size>
            </property>
           </spacer>
@@ -500,6 +517,83 @@
         <layout class="QVBoxLayout" name="verticalLayout_6">
          <item>
           <layout class="QGridLayout" name="gridLayout_3">
+           <item row="1" column="2" colspan="2">
+            <widget class="QPushButton" name="btnTemperatureSet">
+             <property name="text">
+              <string>Set</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2" colspan="2">
+            <widget class="QPushButton" name="btnTemperaturePidISet">
+             <property name="text">
+              <string>Set</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="lblTemperaturePidD">
+             <property name="text">
+              <string>PID D</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="4">
+            <widget class="QPushButton" name="btnTemperatureGet">
+             <property name="text">
+              <string>Get</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="4">
+            <widget class="QPushButton" name="btnTemperaturePidPGet">
+             <property name="text">
+              <string>Get</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="lblTemperature">
+             <property name="text">
+              <string>T set</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="2" colspan="2">
+            <widget class="QPushButton" name="btnTemperaturePidDSet">
+             <property name="text">
+              <string>Set</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="4">
+            <widget class="QPushButton" name="btnTemperaturePidIGet">
+             <property name="text">
+              <string>Get</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="4">
+            <widget class="QPushButton" name="btnTemperaturePidDGet">
+             <property name="text">
+              <string>Get</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="lblTemperaturePidI">
+             <property name="text">
+              <string>PID I</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2" colspan="2">
+            <widget class="QPushButton" name="btnSensorTypeSet">
+             <property name="text">
+              <string>Set</string>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="1">
             <widget class="QComboBox" name="cmbSensorType">
              <property name="currentIndex">
@@ -517,25 +611,8 @@
              </item>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="lblTemperature">
-             <property name="text">
-              <string>T set</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QSpinBox" name="spinTemperature"/>
-           </item>
-           <item row="1" column="2" colspan="2">
-            <widget class="QPushButton" name="btnTemperatureSet">
-             <property name="text">
-              <string>Set</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="4">
-            <widget class="QPushButton" name="btnTemperatureGet">
+           <item row="0" column="4">
+            <widget class="QPushButton" name="btnSensorTypeGet">
              <property name="text">
               <string>Get</string>
              </property>
@@ -548,9 +625,6 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QSpinBox" name="spinTemperaturePidP"/>
-           </item>
            <item row="2" column="2" colspan="2">
             <widget class="QPushButton" name="btnTemperaturePidPSet">
              <property name="text">
@@ -558,72 +632,86 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="4">
-            <widget class="QPushButton" name="btnTemperaturePidPGet">
+           <item row="5" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>WindUp</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QDoubleSpinBox" name="spinTemperaturePidWindup">
+             <property name="decimals">
+              <number>5</number>
+             </property>
+             <property name="minimum">
+              <double>-100.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>100.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="2" colspan="2">
+            <widget class="QPushButton" name="btnTemperaturePidWindupSet">
+             <property name="text">
+              <string>Set</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="4">
+            <widget class="QPushButton" name="btnTemperaturePidWindupGet">
              <property name="text">
               <string>Get</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="lblTemperaturePidI">
-             <property name="text">
-              <string>PID I</string>
+           <item row="1" column="1">
+            <widget class="QDoubleSpinBox" name="spinTemperature">
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="minimum">
+              <double>-100.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QDoubleSpinBox" name="spinTemperaturePidP">
+             <property name="decimals">
+              <number>5</number>
+             </property>
+             <property name="minimum">
+              <double>-100.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>100.000000000000000</double>
              </property>
             </widget>
            </item>
            <item row="3" column="1">
-            <widget class="QSpinBox" name="spinTemperaturePidI"/>
-           </item>
-           <item row="3" column="4">
-            <widget class="QPushButton" name="btnTemperaturePidIGet">
-             <property name="text">
-              <string>Get</string>
+            <widget class="QDoubleSpinBox" name="spinTemperaturePidI">
+             <property name="decimals">
+              <number>5</number>
              </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="lblTemperaturePidD">
-             <property name="text">
-              <string>PID D</string>
+             <property name="minimum">
+              <double>-100.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>100.000000000000000</double>
              </property>
             </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QSpinBox" name="spinTemperaturePidD"/>
-           </item>
-           <item row="4" column="2" colspan="2">
-            <widget class="QPushButton" name="btnTemperaturePidDSet">
-             <property name="text">
-              <string>Set</string>
+            <widget class="QDoubleSpinBox" name="spinTemperaturePidD">
+             <property name="decimals">
+              <number>5</number>
              </property>
-            </widget>
-           </item>
-           <item row="4" column="4">
-            <widget class="QPushButton" name="btnTemperaturePidDGet">
-             <property name="text">
-              <string>Get</string>
+             <property name="minimum">
+              <double>-100.000000000000000</double>
              </property>
-            </widget>
-           </item>
-           <item row="0" column="4">
-            <widget class="QPushButton" name="btnSensorTypeGet">
-             <property name="text">
-              <string>Get</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2" colspan="2">
-            <widget class="QPushButton" name="btnSensorTypeSet">
-             <property name="text">
-              <string>Set</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="2" colspan="2">
-            <widget class="QPushButton" name="btnTemperaturePidISet">
-             <property name="text">
-              <string>Set</string>
+             <property name="maximum">
+              <double>100.000000000000000</double>
              </property>
             </widget>
            </item>
@@ -739,7 +827,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1142</width>
+     <width>1035</width>
      <height>33</height>
     </rect>
    </property>

@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QFile>
 #include <QChart>
 #include <QValueAxis>
 #include <QXYSeries>
@@ -47,7 +48,12 @@ private:
     QList<QWidget *> m_widgetsInTabs;
 
     void ParseGetRequest(tec::Commands command, const QByteArray &data);
-
+    QString m_recordFileName;
+    QFile *m_recordFile = nullptr;
+    qint64 m_recordIndex = -1;
+    void RecordTelemetry(const QList<double> &current);
+    QString RecordIndexToTime(qint64 index, double timebase = 500e-6);
+    
 public slots:
     void SerialError(const QString &s);
     void Telemetry(const QList<double> &current, double temperature, uint32_t status);
@@ -55,6 +61,7 @@ public slots:
     
     void buttonGetClicked();
     void buttonSetClicked();
+    void buttonRecordClicked();
 };
 
 #endif // MAINWINDOW_H
