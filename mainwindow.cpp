@@ -347,7 +347,7 @@ WorkMode wm;
         case tec::Commands::CurrentPidGetSet:
             if (data.size() == sizeof(f_value) + 1) {
                 ::memcpy(&f_value, data.constData() + 1, data.size() - 1);
-                switch (data[0]) {
+                switch (static_cast<PidVariableType>(data[0])) {
                     case PidVariableType::Proportional:
                         ui->spinCurrentPidP->setValue(f_value);
                         break;
@@ -380,7 +380,7 @@ WorkMode wm;
         case tec::Commands::TemperaturePidGetSet:
             if (data.size() == sizeof(f_value) + 1) {
                 ::memcpy(&f_value, data.constData() + 1, data.size() - 1);
-                switch (data[0]) {
+                switch (static_cast<PidVariableType>(data[0])) {
                     case PidVariableType::Proportional:
                         ui->spinTemperaturePidP->setValue(f_value);
                         break;
