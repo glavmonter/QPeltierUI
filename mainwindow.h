@@ -32,7 +32,8 @@ public:
     void SetDisconnected();
     void PopulateSerialPorts();
     std::shared_ptr<spdlog::logger> logger;
-
+    static QString toVersion(uint32_t version);
+    
 private:
     Ui::MainWindow *ui;
     SerialPortWorker *m_serialPortWorker = nullptr;
@@ -51,7 +52,7 @@ private:
     QString m_recordFileName;
     QFile *m_recordFile = nullptr;
     qint64 m_recordIndex = -1;
-    void RecordTelemetry(const QList<double> &current);
+    void RecordTelemetry(const QList<double> &current, double temperature);
     QString RecordIndexToTime(qint64 index, double timebase = 500e-6);
     
 public slots:

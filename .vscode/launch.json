@@ -53,7 +53,8 @@
             "program": "${workspaceRoot}/Utils/show.py",
             "console": "integratedTerminal",
             "args": [
-                "Utils/RealCurrent.csv"
+                "Utils/Temperature.csv",
+                "5", "10"
             ]
         },
 
@@ -67,6 +68,19 @@
                 "-f 2",
                 "Utils/RealCurrent.csv"
             ]
+        },
+
+        {
+            "name": "fft.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceRoot}/Utils/fft.py",
+            "console": "integratedTerminal",
+            "args": [
+                "Utils/RealCurrent.csv",
+                "1", "5"
+            ]
         }
+        
     ]
 }

@@ -31,9 +31,9 @@ filter_indexes = list(map(lambda x: int(x), args.filter.split(',')))
 
 print(f'Используем файл {csv_file}')
 try:
-    axisx, axisy = csv_loader.Load(csv_file)
-except:
-    print(f'File `{csv_file}` not found')
+    axisx, axisy, axisx_temperature, axisy_temperature = csv_loader.Load(csv_file)
+except Exception as ex:
+    print(f'File `{csv_file}` not found: {ex}')
     parser.exit(0)
 
 print(f'Количество записей: {len(axisx)}, {axisx.max()} секунд')

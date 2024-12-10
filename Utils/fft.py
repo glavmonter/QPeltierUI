@@ -1,5 +1,6 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib import gridspec
 
 import argparse
@@ -9,7 +10,8 @@ mpl.rcParams['figure.figsize'] = [10.0, 6.0]
 mpl.rcParams['figure.dpi'] = 100
 mpl.rcParams['savefig.dpi'] = 100
 
-parser = argparse.ArgumentParser(description='Отображатель логов')
+parser = argparse.ArgumentParser(description='Отображатель FFT')
+parser.add_argument('--frequency', '-f', default=1000, type=float, help='Частота сэмплирования')
 parser.add_argument('file', type=str, nargs='?', default='', help='CSV файл с записями')
 parser.add_argument('begin', type=float, nargs='?', default=0, help='Начальное время отображения, секунд')
 parser.add_argument('end', type=float, nargs='?', default=2**32 + 1, help='Конечное время отображения, секунд')
@@ -26,34 +28,49 @@ end_time = args.end
 
 print(f'Используем файл {csv_file}')
 try:
-    axisx, axisy, axisx_temperature, axisy_temperature = csv_loader.Load(csv_file)
+    axisx, axisy, _, _ = csv_loader.Load(csv_file)
 except:
     print(f'File `{csv_file}` not found')
     parser.exit(0)
 
 print(f'Количество записей: {len(axisx)}, {axisx.max()} секунд')
 
+begin_index = 0
+end_index = len(axisx)
+
+if begin_time > 0:
+    begin_index = np.searchsorted(axisx, args.begin)
+
 if end_time > 2**32:
     end_time = axisx[-1]
+
+if end_time < 2**32:
+    end_index = np.searchsorted(axisx, args.end)
+
+axisx = axisx[begin_index:end_index]
+axisy = axisy[begin_index:end_index]
 
 print(f'Mean: {axisy.mean()}')
 print(f'Std: {axisy.std()}')
 print(f'var: {axisy.var()}')
 
-fig = plt.figure()
-gs = gridspec.GridSpec(2, 1)
-ax0 = plt.subplot(gs[0])
-ax0.set_ylim(axisy.min(), axisy.max())
-ax0.set_xlim(begin_time, end_time)
-ax0.plot(axisx, axisy, label='Current')
-ax0.grid()
-ax0.legend()
+n = len(axisx)
+frequencies = np.fft.fftfreq(n, d=1/args.frequency)
+fft_values = np.fft.fft(axisy)
+amplitudes = np.abs(fft_values)/n
 
-ax1 = plt.subplot(gs[1])
-ax1.set_xlim(begin_time, end_time)
-ax1.plot(axisx_temperature, axisy_temperature, label='Temperature')
-ax1.grid()
-ax1.legend()
+plt.figure(figsize=(12, 6))
+plt.subplot(2, 1, 1)
+plt.plot(axisx, axisy)
+plt.title('Original Signal')
+plt.xlabel('Time (s)')
+plt.ylabel('Amplitude')
 
-plt.subplots_adjust(hspace=0.1)
+# Plot the FFT results
+plt.subplot(2, 1, 2)
+plt.stem(frequencies[1:n // 2], amplitudes[1:n // 2])
+plt.title('FFT of the Signal')
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Amplitude')
+plt.tight_layout()
 plt.show()

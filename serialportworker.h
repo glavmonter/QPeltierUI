@@ -30,7 +30,7 @@ public:
 
 signals:
     void error(const QString &s);
-    void telemetryRecv(QList<double> current, double temperature, uint32_t status);
+    void telemetryRecv(QList<double> current, double temperature, uint32_t status, uint32_t reserved);
     void commandExecute(CommandError error, tec::Commands command, const QByteArray &data);
 
 public slots:
@@ -58,12 +58,20 @@ public slots:
     void setWorkMode(WorkMode mode);
     void getWorkMode();
 
+    void getVersion();
+
+    void setSecurityKey(const QByteArray &key);
+    void getSecurityKey();
+
+    void saveSettingsToEeprom();
+
 private:
-static const int TelementrySize = 90;
+static const int TelementrySize = 94;
 
     void run() override;
 
     void commandTransmit(tec::Commands cmd, const QByteArray &tx);
+    void commandTransmit(tec::Commands cmd);
 
     bool m_isSimulator;
     QString m_portName;

@@ -9,6 +9,7 @@
 #endif
 
 #include <QDateTime>
+#include <QStringBuilder>
 #include <QTimer>
 #include <QSerialPortInfo>
 #include "mainwindow.h"
@@ -139,6 +140,7 @@ void MainWindow::ConnectButtonsToSerialWorker() {
     connect(ui->btnDebugOutVoltageGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
     connect(ui->btnWorkModeGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
     connect(ui->btnDebugCurrentGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
+    connect(ui->btnVersionGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
 
     connect(ui->btnTemperaturePidPGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
     connect(ui->btnTemperaturePidIGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
@@ -159,6 +161,8 @@ void MainWindow::ConnectButtonsToSerialWorker() {
 
     connect(ui->btnDebugOutVoltageSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
     connect(ui->btnWorkModeSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+
+    connect(ui->btnSaveSettings, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
 }
 
 void MainWindow::buttonGetClicked() {
@@ -184,6 +188,8 @@ void MainWindow::buttonGetClicked() {
         m_serialPortWorker->getTemperaturePid(PidVariableType::WindUp);
     } else if (sender() == ui->btnTemperatureGet) {
         m_serialPortWorker->getTemperature();
+    } else if (sender() == ui->btnVersionGet) {
+        m_serialPortWorker->getVersion();
     }
 }
 
@@ -210,6 +216,8 @@ void MainWindow::buttonSetClicked() {
         m_serialPortWorker->setTemperaturePid(PidVariableType::WindUp, ui->spinTemperaturePidWindup->value());
     } else if (sender() == ui->btnTemperatureSet) {
         m_serialPortWorker->setTemperature(ui->spinTemperature->value());
+    } else if (sender() == ui->btnSaveSettings) {
+        m_serialPortWorker->saveSettingsToEeprom();
     }
 }
 
@@ -282,7 +290,7 @@ void MainWindow::SerialError(const QString &s) {
 void MainWindow::Telemetry(const QList<double> &current, double temperature, uint32_t status) {
     m_chartCurrent->addData(current);
     m_chartTemperature->addData(temperature);
-    RecordTelemetry(current);
+    RecordTelemetry(current, temperature);
 
     auto cur_mean = std::accumulate(current.begin(), current.end(), 0.0) / current.size();
     ui->labelTemperature->setText(tr("Temperature %1 °C").arg(temperature, 0, 'g', 4, '0'));    
@@ -293,16 +301,22 @@ QString MainWindow::RecordIndexToTime(qint64 index, double timebase) {
     return QString("%1").arg(index * timebase, 4, 'g', 5, ' ').replace('.', ',');
 }
     
-void MainWindow::RecordTelemetry(const QList<double> &current) {
+void MainWindow::RecordTelemetry(const QList<double> &current, double temperature) {
     if (m_recordFile == nullptr) {
         return;
     }
 
     QString time;
-    for (const double &c : current) {
+    for (int i = 0; i < current.size(); i++) {
         time = RecordIndexToTime(m_recordIndex, m_chartCurrent->timebase());
-        QString value = QString("%1").arg(c, 4, 'g', 5, '0').replace('.', ',');
-        QString rec = QString("%1; %2; %3\n").arg(m_recordIndex).arg(time).arg(value);
+        QString value = QString("%1").arg(current[i], 4, 'g', 5, '0').replace('.', ',');
+        QString rec;
+        if (i != 0) {
+            rec = QString("%1; %2; %3\n").arg(m_recordIndex).arg(time).arg(value);
+        } else {
+            QString value_t = QString("%1").arg(temperature, 4, 'g', 5, '0').replace('.', ',');
+            rec = QString("%1; %2; %3; %4\n").arg(m_recordIndex).arg(time).arg(value).arg(value_t);
+        }
         m_recordFile->write(rec.toLatin1());
         m_recordIndex++;
     }
@@ -334,6 +348,7 @@ void MainWindow::commandExecute(SerialPortWorker::CommandError error, tec::Comma
 
 void MainWindow::ParseGetRequest(tec::Commands command, const QByteArray &data) {
 float f_value;
+uint32_t ui32_value;
 WorkMode wm;
 
     switch (command) {
@@ -404,7 +419,25 @@ WorkMode wm;
             }
             break;
 
+        case tec::Commands::VersionGet:
+            if (data.size() == 8) {
+                uint32_t hw_ver;
+                uint32_t sw_ver;
+                ::memcpy(&hw_ver, reinterpret_cast<const void *>(data.constData()    ), 4);
+                ::memcpy(&sw_ver, reinterpret_cast<const void *>(data.constData() + 4), 4);
+                QString ver = QString("Version HW: %1, SW: %2").arg(toVersion(hw_ver)).arg(toVersion(sw_ver));
+                ui->lblVersion->setText(ver);
+            }
+            break;
+
         default:
             break;
     }
+}
+
+QString MainWindow::toVersion(uint32_t version) {
+    uint32_t major = version / 10000;
+    uint32_t minor = (version - major * 10000) / 100;
+    uint32_t patch = (version - major * 10000 - minor * 100);
+    return QString("%1.%2.%3").arg(major).arg(minor).arg(patch);
 }

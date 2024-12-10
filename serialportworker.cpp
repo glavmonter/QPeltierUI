@@ -59,7 +59,7 @@ QList<double> current(40);
         double temperature = m_phaseTable[itable_temperature];
         itable_temperature = (itable_temperature + 1) & SinTableModMask;
 
-        emit telemetryRecv(current, temperature, 0);
+        emit telemetryRecv(current, temperature, 0, 0);
     }
 }
 
@@ -180,6 +180,10 @@ void SerialPortWorker::commandTransmit(tec::Commands cmd, const QByteArray &tx) 
     emit commandExecute(CommandError::Busy, cmd, QByteArray());
 }
 
+void SerialPortWorker::commandTransmit(tec::Commands cmd) {
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), QByteArray()));
+}
+
 
 void SerialPortWorker::setOutputVoltage(double voltagePercent) {
 float v = static_cast<float>(voltagePercent);
@@ -266,6 +270,24 @@ auto cmd = tec::Commands::CurrentStabGetSet;
     commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), QByteArray()));
 }
 
+void SerialPortWorker::getVersion() {
+auto cmd = tec::Commands::VersionGet;
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), QByteArray()));
+}
+
+void SerialPortWorker::setSecurityKey(const QByteArray &key) {
+auto cmd = tec::Commands::KeyGetSet;
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), key));
+}
+
+void SerialPortWorker::getSecurityKey() {
+    commandTransmit(tec::Commands::KeyGetSet);
+}
+
+void SerialPortWorker::saveSettingsToEeprom() {
+    commandTransmit(tec::Commands::Save);
+}
+
 void SerialPortWorker::sendFrame(tec::Commands cmd, const QByteArray &data) {
     commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), data));
 }
@@ -296,7 +318,8 @@ void SerialPortWorker::ParseTelemetryRecord(const QList<uint8_t> &data) {
 auto p_data = static_cast<const uint8_t *>(data.constData());
 auto p_current = reinterpret_cast<const int16_t *>(p_data + 2);
 auto p_temperature = reinterpret_cast<const float *>(p_current + 40);
-auto p_status = reinterpret_cast<const uint32_t *>(p_temperature + 1);
+auto p_reserved = reinterpret_cast<const uint32_t *>(p_temperature + 1);
+auto p_status = reinterpret_cast<const uint32_t *>(p_reserved + 1);
 
     // 2 байта: порядковый номер фрейма
 uint16_t cnt;
@@ -309,8 +332,7 @@ int16_t c;
         current.append((*(p_current + i)) / 1000.0);
     }
 
-float temperature = *p_temperature;
-    emit telemetryRecv(current, temperature, 2);
+    emit telemetryRecv(current, *p_temperature, *p_status, *p_reserved);
 }
 
 
