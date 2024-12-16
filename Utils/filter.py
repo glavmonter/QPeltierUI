@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 import numpy as np
 import argparse
-import csv_loader
+import Utils.utils as utils
 
 import iir
 import coefficients
@@ -31,7 +31,7 @@ filter_indexes = list(map(lambda x: int(x), args.filter.split(',')))
 
 print(f'Используем файл {csv_file}')
 try:
-    axisx, axisy, axisx_temperature, axisy_temperature = csv_loader.Load(csv_file)
+    axisx, axisy, axisx_temperature, axisy_temperature = utils.Load(csv_file)
 except Exception as ex:
     print(f'File `{csv_file}` not found: {ex}')
     parser.exit(0)

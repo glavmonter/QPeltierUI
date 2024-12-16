@@ -11,3 +11,4 @@ CMakeSettings.json
 __pycache__
 Releases/
 Utils/filters/
+Utils/*.csv

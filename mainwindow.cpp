@@ -136,6 +136,7 @@ void MainWindow::SetConnected() {
 void MainWindow::ConnectButtonsToSerialWorker() {
     connect(ui->btnCurrentPidPGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
     connect(ui->btnCurrentPidIGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
+    connect(ui->btnCurrentPidDGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
     connect(ui->btnCurrentPidWindUpGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
     connect(ui->btnDebugOutVoltageGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
     connect(ui->btnWorkModeGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
@@ -150,6 +151,7 @@ void MainWindow::ConnectButtonsToSerialWorker() {
 
     connect(ui->btnCurrentPidPSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
     connect(ui->btnCurrentPidISet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+    connect(ui->btnCurrentPidDSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
     connect(ui->btnCurrentPidWindUpSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
     connect(ui->btnDebugCurrentSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
     
@@ -172,6 +174,8 @@ void MainWindow::buttonGetClicked() {
         m_serialPortWorker->getCurrentPid(PidVariableType::Proportional);
     } else if (sender() == ui->btnCurrentPidIGet) {
         m_serialPortWorker->getCurrentPid(PidVariableType::Integral);
+    } else if (sender() == ui->btnCurrentPidDGet) {
+        m_serialPortWorker->getCurrentPid(PidVariableType::Derivative);
     } else if (sender() == ui->btnCurrentPidWindUpGet) {
         m_serialPortWorker->getCurrentPid(PidVariableType::WindUp);
     } else if (sender() == ui->btnWorkModeGet) {
@@ -200,6 +204,8 @@ void MainWindow::buttonSetClicked() {
         m_serialPortWorker->setCurrentPid(PidVariableType::Proportional, ui->spinCurrentPidP->value());
     } else if (sender() == ui->btnCurrentPidISet) {
         m_serialPortWorker->setCurrentPid(PidVariableType::Integral, ui->spinCurrentPidI->value());
+    } else if (sender() == ui->btnCurrentPidDSet) {
+        m_serialPortWorker->setCurrentPid(PidVariableType::Derivative, ui->spinCurrentPidD->value());
     } else if (sender() == ui->btnCurrentPidWindUpSet) {
         m_serialPortWorker->setCurrentPid(PidVariableType::WindUp, ui->spinCurrentPidWindUp->value());
     } else if (sender() == ui->btnWorkModeSet) {
@@ -368,6 +374,9 @@ WorkMode wm;
                         break;
                     case PidVariableType::Integral:
                         ui->spinCurrentPidI->setValue(f_value);
+                        break;
+                    case PidVariableType::Derivative:
+                        ui->spinCurrentPidD->setValue(f_value);
                         break;
                     case PidVariableType::WindUp:
                         ui->spinCurrentPidWindUp->setValue(f_value);

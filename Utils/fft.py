@@ -4,7 +4,7 @@ import numpy as np
 from matplotlib import gridspec
 
 import argparse
-import csv_loader
+import utils
 
 mpl.rcParams['figure.figsize'] = [10.0, 6.0]
 mpl.rcParams['figure.dpi'] = 100
@@ -28,7 +28,7 @@ end_time = args.end
 
 print(f'Используем файл {csv_file}')
 try:
-    axisx, axisy, _, _ = csv_loader.Load(csv_file)
+    axisx, axisy, _, _ = utils.LoadCSV(csv_file)
 except:
     print(f'File `{csv_file}` not found')
     parser.exit(0)
@@ -38,21 +38,14 @@ print(f'Количество записей: {len(axisx)}, {axisx.max()} сек�
 begin_index = 0
 end_index = len(axisx)
 
-if begin_time > 0:
-    begin_index = np.searchsorted(axisx, args.begin)
+axisx, _bi, _ei = utils.Slice(axisx, args.begin, args.end)
+axisy = axisy[_bi:_ei]
+end_time = axisx[-1]
 
-if end_time > 2**32:
-    end_time = axisx[-1]
-
-if end_time < 2**32:
-    end_index = np.searchsorted(axisx, args.end)
-
-axisx = axisx[begin_index:end_index]
-axisy = axisy[begin_index:end_index]
-
-print(f'Mean: {axisy.mean()}')
-print(f'Std: {axisy.std()}')
-print(f'var: {axisy.var()}')
+print('Current:')
+print(f'  Mean: {axisy.mean()} A')
+print(f'  Std: {axisy.std()} A')
+print(f'  Var: {axisy.var()} A')
 
 n = len(axisx)
 frequencies = np.fft.fftfreq(n, d=1/args.frequency)

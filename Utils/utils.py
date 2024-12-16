@@ -9,7 +9,16 @@ def _to_float(value: str) -> float:
     except:
         return 0
 
-def Load(csv_file: str):
+def Slice(array, begin=0, end=2**32+1):
+    _begin_index = 0
+    _end_index = len(array)
+    if begin > 0:
+        _begin_index = np.searchsorted(array, begin)
+    if end < 2**32:
+        _end_index = np.searchsorted(array, end)
+    return array[_begin_index:_end_index], _begin_index, _end_index
+
+def LoadCSV(csv_file: str):
     axisx = []
     axisy = []
     axisx_temperature = []

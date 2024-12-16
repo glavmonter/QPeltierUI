@@ -1,9 +1,9 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib import gridspec
-
+import numpy as np
 import argparse
-import csv_loader
+import utils
+from matplotlib import gridspec
 
 mpl.rcParams['figure.figsize'] = [10.0, 6.0]
 mpl.rcParams['figure.dpi'] = 100
@@ -26,19 +26,28 @@ end_time = args.end
 
 print(f'Используем файл {csv_file}')
 try:
-    axisx, axisy, axisx_temperature, axisy_temperature = csv_loader.Load(csv_file)
+    axisx, axisy, axisx_temperature, axisy_temperature = utils.LoadCSV(csv_file)
 except:
     print(f'File `{csv_file}` not found')
     parser.exit(0)
 
 print(f'Количество записей: {len(axisx)}, {axisx.max()} секунд')
 
-if end_time > 2**32:
-    end_time = axisx[-1]
+axisx, _bi, _ei = utils.Slice(axisx, args.begin, args.end)
+axisy = axisy[_bi:_ei]
+axisx_temperature, _bi, _ei = utils.Slice(axisx_temperature, args.begin, args.end)
+axisy_temperature = axisy_temperature[_bi:_ei]
+end_time = axisx[-1]
 
-print(f'Mean: {axisy.mean()}')
-print(f'Std: {axisy.std()}')
-print(f'var: {axisy.var()}')
+print('Current:')
+print(f'  Mean: {axisy.mean()} A')
+print(f'  Std: {axisy.std()} A')
+print(f'  Var: {axisy.var()} A')
+
+print('Temperature:')
+print(f'  Mean: {axisy_temperature.mean()} K')
+print(f'  Std: {axisy_temperature.std()} K')
+print(f'  Var: {axisy_temperature.var()} K')
 
 fig = plt.figure()
 gs = gridspec.GridSpec(2, 1)
