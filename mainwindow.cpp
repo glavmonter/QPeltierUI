@@ -6,6 +6,7 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #else
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/rotating_file_sink.h>
 #endif
 
 #include <QDateTime>
@@ -57,7 +58,7 @@ MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimula
     ConfigureCharts();
 
     PopulateSerialPorts();
-    connect(ui->cmbSerialPorts, &QComboBox::activated, [=](int index) {
+    connect(ui->cmbSerialPorts, &QComboBox::activated, [this](int index) {
         if (ui->cmbSerialPorts->itemData(index).toString() == "__refresh__") {
             PopulateSerialPorts();
         } else {
@@ -65,7 +66,7 @@ MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimula
         }
     });
 
-    connect(ui->btnConnectDisconnect, &QPushButton::clicked, [=]() {
+    connect(ui->btnConnectDisconnect, &QPushButton::clicked, [this]() {
         if (isConnected) {
             disconnect(m_serialPortWorker, &SerialPortWorker::telemetryRecv, this, &MainWindow::Telemetry);
             QTimer::singleShot(0, this, [this]() {
@@ -81,6 +82,7 @@ MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimula
     m_widgetsInTabs.append(ui->tabPageCommon);
     m_widgetsInTabs.append(ui->tabPageCurrent);
     m_widgetsInTabs.append(ui->tabPageTemperature);
+    m_widgetsInTabs.append(ui->tabPageLimits);
     m_widgetsInTabs.append(ui->tabPageDebug);
     for (auto w : m_widgetsInTabs) {
         w->setDisabled(true);
@@ -94,14 +96,16 @@ MainWindow::~MainWindow() {
 void MainWindow::ConfigureCharts() {
     m_chartCurrent = new RecorderWidget();
     m_chartCurrent->legend()->hide();
-    m_chartCurrent->axisY()->setTitleText("Current, A");
-    m_chartCurrent->axisY()->setRange(-1, 1);
+    auto axisY = m_chartCurrent->axes(Qt::Vertical);
+    axisY[0]->setTitleText("Current, A");
+    axisY[0]->setRange(-1, 1);
     m_chartCurrent->setRecordParameters(500e-6, 10); // 500 мкс/тик, 10 секунд записи
 
     m_chartTemperature = new RecorderWidget();
     m_chartTemperature->legend()->hide();
-    m_chartTemperature->axisY()->setTitleText("Temperature, C");
-    m_chartTemperature->axisY()->setRange(-1, 1);
+    axisY = m_chartTemperature->axes(Qt::Vertical);
+    axisY[0]->setTitleText("Temperature, C");
+    axisY[0]->setRange(-1, 1);
     m_chartTemperature->setRecordParameters(20e-3, 30); // 20 мс/тик, 30 секунд записи
     m_chartTemperature->setVerticalRange(0.05);
     
@@ -149,6 +153,11 @@ void MainWindow::ConnectButtonsToSerialWorker() {
     connect(ui->btnTemperaturePidWindupGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
     connect(ui->btnTemperatureGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
 
+    connect(ui->btnLimitVoltageLowGet,  &QPushButton::clicked, [this]() { m_serialPortWorker->getLimits(Limits::VoltageLow); });
+    connect(ui->btnLimitVoltageHighGet, &QPushButton::clicked, [this]() { m_serialPortWorker->getLimits(Limits::VoltageHigh); });
+    connect(ui->btnLimitCurrentLowGet,  &QPushButton::clicked, [this]() { m_serialPortWorker->getLimits(Limits::CurrentLow); });
+    connect(ui->btnLimitCurrentHighGet, &QPushButton::clicked, [this]() { m_serialPortWorker->getLimits(Limits::CurrentHigh); });
+
     connect(ui->btnCurrentPidPSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
     connect(ui->btnCurrentPidISet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
     connect(ui->btnCurrentPidDSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
@@ -160,6 +169,11 @@ void MainWindow::ConnectButtonsToSerialWorker() {
     connect(ui->btnTemperaturePidDSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
     connect(ui->btnTemperaturePidWindupSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
     connect(ui->btnTemperatureSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+
+    connect(ui->btnLimitVoltageLowSet,  &QPushButton::clicked, [this]() { m_serialPortWorker->setLimits(Limits::VoltageLow,  ui->spinLimitVoltageLow->value()); });
+    connect(ui->btnLimitVoltageHighSet, &QPushButton::clicked, [this]() { m_serialPortWorker->setLimits(Limits::VoltageHigh, ui->spinLimitVoltageHigh->value()); });
+    connect(ui->btnLimitCurrentLowSet,  &QPushButton::clicked, [this]() { m_serialPortWorker->setLimits(Limits::CurrentLow,  ui->spinLimitCurrentLow->value()); });
+    connect(ui->btnLimitCurrentHighSet, &QPushButton::clicked, [this]() { m_serialPortWorker->setLimits(Limits::CurrentHigh, ui->spinLimitCurrentHigh->value()); });
 
     connect(ui->btnDebugOutVoltageSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
     connect(ui->btnWorkModeSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
@@ -425,6 +439,28 @@ WorkMode wm;
             if (data.size() == 4) {
                 ::memcpy(&f_value, data.constData(), data.size());
                 ui->spinTemperature->setValue(f_value);
+            }
+            break;
+
+        case tec::Commands::LimitsGetSet:
+            if (data.size() == sizeof(f_value) + 1) {
+                ::memcpy(&f_value, data.constData() + 1, data.size() - 1);
+                switch (static_cast<Limits>(data[0])) {
+                    case Limits::VoltageLow:
+                        ui->spinLimitVoltageLow->setValue(f_value);
+                        break;
+                    case Limits::VoltageHigh:
+                        ui->spinLimitVoltageHigh->setValue(f_value);
+                        break;
+                    case Limits::CurrentLow:
+                        ui->spinLimitCurrentLow->setValue(f_value);
+                        break;
+                    case Limits::CurrentHigh:
+                        ui->spinLimitCurrentHigh->setValue(f_value);
+                        break;
+                    default:
+                        logger->warn("Unknown Limit reply: {}", data[0]);
+                }
             }
             break;
 

@@ -34,6 +34,15 @@
                 "C:/Users/qt/work/qt": "D:/Qt/6.7.0/Src"
             }
         },
+        {
+            "name": "QPeltierUI Linux",
+            "type": "cppdbg",
+            "cwd": "${workspaceRoot}/build",
+            "program": "${workspaceRoot}/build/QPeltierUI",
+            "visualizerFile": "${workspaceFolder}/qt6.natvis",
+            "request": "launch",
+            "stopAtEntry": false
+        },
 
         {
             "name": "check_wake.py",

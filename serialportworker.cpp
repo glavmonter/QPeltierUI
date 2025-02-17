@@ -125,7 +125,7 @@ void SerialPortWorker::runSerial() {
 
         while (!recvData.isEmpty()) {
             auto b = (uint8_t)recvData[0];
-            recvData.removeAt(0);
+            recvData.remove(0, 1);
             if (wake.ProcessInByte(b) == Wake::Status::READY) {
                 if (wake.command() != qToUnderlying(tec::Commands::Telemetry)) {
                     logger->info("Received Wake {}. Remain {} bytes", wake.command(), recvData.size());
@@ -227,6 +227,22 @@ QByteArray arr;
 
 void SerialPortWorker::getTemperaturePid(PidVariableType type) {
 auto cmd = tec::Commands::TemperaturePidGetSet;
+QByteArray arr;
+    arr.append(qToUnderlying(type));
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), arr));
+}
+
+void SerialPortWorker::setLimits(Limits type, double value) {
+auto cmd = tec::Commands::LimitsGetSet;
+float v = static_cast<float>(value);
+QByteArray arr;
+    arr.append(qToUnderlying(type));
+    arr.append(reinterpret_cast<const char *>(&v), 4);
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), arr));
+}
+
+void SerialPortWorker::getLimits(Limits type) {
+auto cmd = tec::Commands::LimitsGetSet;
 QByteArray arr;
     arr.append(qToUnderlying(type));
     commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), arr));
@@ -342,9 +358,9 @@ const auto serialPortInfos = QSerialPortInfo::availablePorts();
 QStringList serials;
 
     for (const auto &portInfo : serialPortInfos) {
-        if (portInfo.description().contains("CH340")) {
+        // if (portInfo.description().contains("CH340")) {
             serials << portInfo.portName();
-        }
+        // }
     }
 
     serials.sort();

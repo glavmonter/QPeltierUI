@@ -49,6 +49,9 @@ public slots:
     void setTemperaturePid(PidVariableType type, double value);
     void getTemperaturePid(PidVariableType type);
 
+    void setLimits(Limits type, double value);
+    void getLimits(Limits type);
+
     void setTemperature(double value);
     void getTemperature();
 
