@@ -6,17 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1046</width>
-    <height>1181</height>
+    <width>936</width>
+    <height>709</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>QPeltierUI</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_5">
+   <layout class="QVBoxLayout" name="verticalLayout_6">
     <item>
      <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalGraphs">
         <property name="spacing">
@@ -42,13 +45,16 @@
           </item>
           <item>
            <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
             <property name="sizeType">
              <enum>QSizePolicy::Fixed</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>40</width>
-              <height>20</height>
+              <width>20</width>
+              <height>40</height>
              </size>
             </property>
            </spacer>
@@ -77,6 +83,9 @@
             </item>
             <item>
              <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
               <property name="sizeType">
                <enum>QSizePolicy::Fixed</enum>
               </property>
@@ -97,10 +106,13 @@
             </item>
             <item>
              <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
               <property name="sizeHint" stdset="0">
                <size>
-                <width>40</width>
-                <height>20</height>
+                <width>20</width>
+                <height>40</height>
                </size>
               </property>
              </spacer>
@@ -122,7 +134,7 @@
         <enum>Qt::LeftToRight</enum>
        </property>
        <property name="currentIndex">
-        <number>3</number>
+        <number>4</number>
        </property>
        <widget class="QWidget" name="tabPageCommon">
         <attribute name="title">
@@ -217,11 +229,14 @@
           </widget>
          </item>
          <item>
-          <spacer name="verticalSpacer_5">
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
            <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
-             <height>382</height>
+             <height>40</height>
             </size>
            </property>
           </spacer>
@@ -556,11 +571,14 @@
           </widget>
          </item>
          <item>
-          <spacer name="verticalSpacer_4">
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>17</width>
-             <height>653</height>
+             <width>20</width>
+             <height>40</height>
             </size>
            </property>
           </spacer>
@@ -782,7 +800,105 @@
            <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
-             <height>727</height>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tabPageTemperatureAutomat">
+        <attribute name="title">
+         <string>Automat</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_8">
+         <item>
+          <layout class="QGridLayout" name="gridLayout_6">
+           <item row="0" column="0">
+            <widget class="QLabel" name="lblAutomatHeatingUp">
+             <property name="text">
+              <string>Heating up rate</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QDoubleSpinBox" name="spinAutomatHeatingUp">
+             <property name="suffix">
+              <string> K/min</string>
+             </property>
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="minimum">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QPushButton" name="btnAutomatHeatingUpSet">
+             <property name="text">
+              <string>Set</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="btnAutomatHeatingUpGet">
+             <property name="text">
+              <string>Get</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="lblAutomatCoolDown">
+             <property name="text">
+              <string>Cooling down rate</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QDoubleSpinBox" name="spinAutomatCoolingDown">
+             <property name="suffix">
+              <string> K/min</string>
+             </property>
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="minimum">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QPushButton" name="btnAutomatCoolingDownSet">
+             <property name="text">
+              <string>Set</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QPushButton" name="btnAutomatCoolingDownGet">
+             <property name="text">
+              <string>Get</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>502</height>
             </size>
            </property>
           </spacer>
@@ -795,30 +911,211 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <layout class="QGridLayout" name="gridLayout_5">
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="title">
+            <string>TEC Limits</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <item row="0" column="0">
+             <widget class="QLabel" name="lblVoltageLow">
+              <property name="text">
+               <string>Voltage Low</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QDoubleSpinBox" name="spinLimitVoltageLow">
+              <property name="suffix">
+               <string> V</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="minimum">
+               <double>-25.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>25.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.500000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QPushButton" name="btnLimitVoltageLowSet">
+              <property name="text">
+               <string>Set</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QPushButton" name="btnLimitVoltageLowGet">
+              <property name="text">
+               <string>Get</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="lblVoltageHigh">
+              <property name="text">
+               <string>Voltage High</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QDoubleSpinBox" name="spinLimitVoltageHigh">
+              <property name="suffix">
+               <string> V</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="minimum">
+               <double>-25.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>25.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.500000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QPushButton" name="btnLimitVoltageHighSet">
+              <property name="text">
+               <string>Set</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <widget class="QPushButton" name="btnLimitVoltageHighGet">
+              <property name="text">
+               <string>Get</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="lblCurrentLow">
+              <property name="text">
+               <string>Current Low</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QDoubleSpinBox" name="spinLimitCurrentLow">
+              <property name="suffix">
+               <string> A</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="minimum">
+               <double>-15.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>15.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QPushButton" name="btnLimitCurrentLowSet">
+              <property name="text">
+               <string>Set</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="3">
+             <widget class="QPushButton" name="btnLimitCurrentLowGet">
+              <property name="text">
+               <string>Get</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="lblCurrentHigh">
+              <property name="text">
+               <string>Current High</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QDoubleSpinBox" name="spinLimitCurrentHigh">
+              <property name="suffix">
+               <string> A</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="minimum">
+               <double>-15.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>15.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2">
+             <widget class="QPushButton" name="btnLimitCurrentHighSet">
+              <property name="text">
+               <string>Set</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="3">
+             <widget class="QPushButton" name="btnLimitCurrentHighGet">
+              <property name="text">
+               <string>Get</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout_8">
            <item row="0" column="0">
-            <widget class="QLabel" name="lblVoltageLow">
+            <widget class="QLabel" name="lblCurrentLimit">
              <property name="text">
-              <string>Voltage Low</string>
+              <string>Current Limit</string>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QDoubleSpinBox" name="spinLimitVoltageLow">
+            <widget class="QDoubleSpinBox" name="spinLimitCurrent">
              <property name="suffix">
-              <string> V</string>
+              <string> A</string>
              </property>
              <property name="decimals">
               <number>1</number>
              </property>
              <property name="minimum">
-              <double>-25.000000000000000</double>
+              <double>0.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>25.000000000000000</double>
+              <double>15.000000000000000</double>
              </property>
              <property name="singleStep">
-              <double>0.500000000000000</double>
+              <double>0.100000000000000</double>
              </property>
              <property name="value">
               <double>0.000000000000000</double>
@@ -826,143 +1123,14 @@
             </widget>
            </item>
            <item row="0" column="2">
-            <widget class="QPushButton" name="btnLimitVoltageLowSet">
+            <widget class="QPushButton" name="btnLimitCurrentSet">
              <property name="text">
               <string>Set</string>
              </property>
             </widget>
            </item>
            <item row="0" column="3">
-            <widget class="QPushButton" name="btnLimitVoltageLowGet">
-             <property name="text">
-              <string>Get</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="lblVoltageHigh">
-             <property name="text">
-              <string>Voltage High</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QDoubleSpinBox" name="spinLimitVoltageHigh">
-             <property name="suffix">
-              <string> V</string>
-             </property>
-             <property name="decimals">
-              <number>1</number>
-             </property>
-             <property name="minimum">
-              <double>-25.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>25.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.500000000000000</double>
-             </property>
-             <property name="value">
-              <double>0.000000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QPushButton" name="btnLimitVoltageHighSet">
-             <property name="text">
-              <string>Set</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="3">
-            <widget class="QPushButton" name="btnLimitVoltageHighGet">
-             <property name="text">
-              <string>Get</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="lblVoltageLow_2">
-             <property name="text">
-              <string>Current Low</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QDoubleSpinBox" name="spinLimitCurrentLow">
-             <property name="suffix">
-              <string> A</string>
-             </property>
-             <property name="decimals">
-              <number>1</number>
-             </property>
-             <property name="minimum">
-              <double>-15.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>15.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.100000000000000</double>
-             </property>
-             <property name="value">
-              <double>0.000000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QPushButton" name="btnLimitCurrentLowSet">
-             <property name="text">
-              <string>Set</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="3">
-            <widget class="QPushButton" name="btnLimitCurrentLowGet">
-             <property name="text">
-              <string>Get</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="lblVoltageHigh_2">
-             <property name="text">
-              <string>Current High</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QDoubleSpinBox" name="spinLimitCurrentHigh">
-             <property name="suffix">
-              <string> A</string>
-             </property>
-             <property name="decimals">
-              <number>1</number>
-             </property>
-             <property name="minimum">
-              <double>-15.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>15.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.100000000000000</double>
-             </property>
-             <property name="value">
-              <double>0.000000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="2">
-            <widget class="QPushButton" name="btnLimitCurrentHighSet">
-             <property name="text">
-              <string>Set</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="3">
-            <widget class="QPushButton" name="btnLimitCurrentHighGet">
+            <widget class="QPushButton" name="btnLimitCurrentGet">
              <property name="text">
               <string>Get</string>
              </property>
@@ -971,14 +1139,14 @@
           </layout>
          </item>
          <item>
-          <spacer name="verticalSpacer_2">
+          <spacer name="verticalSpacer_4">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
-             <height>811</height>
+             <height>332</height>
             </size>
            </property>
           </spacer>
@@ -991,12 +1159,9 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <property name="sizeConstraint">
-            <enum>QLayout::SetMinimumSize</enum>
-           </property>
-           <item>
-            <widget class="QLabel" name="label_4">
+          <layout class="QGridLayout" name="gridLayout_7">
+           <item row="0" column="0">
+            <widget class="QLabel" name="lblOutVoltage">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -1008,7 +1173,7 @@
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="1">
             <widget class="QDoubleSpinBox" name="spinDebugOutVoltage">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1030,7 +1195,7 @@
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="2">
             <widget class="QPushButton" name="btnDebugOutVoltageSet">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1043,7 +1208,7 @@
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="3">
             <widget class="QPushButton" name="btnDebugOutVoltageGet">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1056,17 +1221,44 @@
              </property>
             </widget>
            </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="lblDebug">
+             <property name="text">
+              <string>Debug</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="editDebugMessage">
+             <property name="inputMask">
+              <string>bbbbbbbb</string>
+             </property>
+             <property name="text">
+              <string>0000000</string>
+             </property>
+             <property name="maxLength">
+              <number>8</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2" colspan="2">
+            <widget class="QPushButton" name="btnDebugMessageSet">
+             <property name="text">
+              <string>Set</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
          <item>
-          <spacer name="verticalSpacer">
+          <spacer name="verticalSpacer_5">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
-             <height>937</height>
+             <height>502</height>
             </size>
            </property>
           </spacer>
@@ -1083,7 +1275,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1046</width>
+     <width>936</width>
      <height>32</height>
     </rect>
    </property>

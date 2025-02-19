@@ -47,6 +47,7 @@ private:
     RecorderWidget *m_chartCurrent;
     RecorderWidget *m_chartTemperature;
     QList<QWidget *> m_widgetsInTabs;
+    QList<QWidget *> m_widgetsButtons;
 
     void ParseGetRequest(tec::Commands command, const QByteArray &data);
     QString m_recordFileName;
@@ -59,9 +60,7 @@ public slots:
     void SerialError(const QString &s);
     void Telemetry(const QList<double> &current, double temperature, uint32_t status);
     void commandExecute(SerialPortWorker::CommandError error, tec::Commands command, const QByteArray &data);
-    
-    void buttonGetClicked();
-    void buttonSetClicked();
+
     void buttonRecordClicked();
 };
 

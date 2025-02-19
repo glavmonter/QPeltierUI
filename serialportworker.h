@@ -39,6 +39,9 @@ public slots:
     
     void sendFrame(tec::Commands cmd, const QByteArray &data);
 
+    void setDebugMessage(quint32 message);
+    void setDebugMessage(const QString &messageBinary);
+
     void setOutputVoltage(double voltagePercent);
     void getOutputVoltage();
     void setCommandTimeout(qint64 timeoutMs) { m_commandTimeout = timeoutMs; }
@@ -55,6 +58,9 @@ public slots:
     void setTemperature(double value);
     void getTemperature();
 
+    void setTemperatureAutomat(Automat type, double value);
+    void getTemperatureAutomat(Automat type);
+    
     void setDebugCurrent(double value);
     void getDebugCurrent();
 

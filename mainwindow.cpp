@@ -17,6 +17,19 @@
 #include "ui_mainwindow.h"
 #include <proto.hpp>
 
+static QString FormatFloat(double d, int leading, int precision) {
+    QLocale locale(QLocale::English);
+    QString str = locale.toString(d, 'f', precision);
+    QStringList parts = str.split('.');
+
+    // Добавим лидирующие пробелы перед целой частью
+    if (parts[0].length() < leading) {
+        QString leadingEmpty(leading - parts[0].length(), ' ');
+        str = leadingEmpty + str;
+    }
+    return str;
+}
+
 MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimulator), QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
     
@@ -84,6 +97,7 @@ MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimula
     m_widgetsInTabs.append(ui->tabPageTemperature);
     m_widgetsInTabs.append(ui->tabPageLimits);
     m_widgetsInTabs.append(ui->tabPageDebug);
+    m_widgetsInTabs.append(ui->tabPageTemperatureAutomat);
     for (auto w : m_widgetsInTabs) {
         w->setDisabled(true);
     }
@@ -137,108 +151,64 @@ void MainWindow::SetConnected() {
     }
 }
 
+#define CONNECT(list, w, lambda)  do { \
+                                connect((w), &QPushButton::clicked, (lambda));\
+                                (list) << (w); \
+                            } while(0)
+
 void MainWindow::ConnectButtonsToSerialWorker() {
-    connect(ui->btnCurrentPidPGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
-    connect(ui->btnCurrentPidIGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
-    connect(ui->btnCurrentPidDGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
-    connect(ui->btnCurrentPidWindUpGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
-    connect(ui->btnDebugOutVoltageGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
-    connect(ui->btnWorkModeGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
-    connect(ui->btnDebugCurrentGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
-    connect(ui->btnVersionGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
+    m_widgetsButtons.clear();
 
-    connect(ui->btnTemperaturePidPGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
-    connect(ui->btnTemperaturePidIGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
-    connect(ui->btnTemperaturePidDGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
-    connect(ui->btnTemperaturePidWindupGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
-    connect(ui->btnTemperatureGet, &QPushButton::clicked, this, &MainWindow::buttonGetClicked);
+    CONNECT(m_widgetsButtons, ui->btnCurrentPidPGet,          [this]() { m_serialPortWorker->getCurrentPid(PidVariableType::Proportional); });
+    CONNECT(m_widgetsButtons, ui->btnCurrentPidIGet,          [this]() { m_serialPortWorker->getCurrentPid(PidVariableType::Integral); });
+    CONNECT(m_widgetsButtons, ui->btnCurrentPidDGet,          [this]() { m_serialPortWorker->getCurrentPid(PidVariableType::Derivative); });
+    CONNECT(m_widgetsButtons, ui->btnCurrentPidWindUpGet,     [this]() { m_serialPortWorker->getCurrentPid(PidVariableType::WindUp); });
+    CONNECT(m_widgetsButtons, ui->btnDebugOutVoltageGet,      [this]() { m_serialPortWorker->getOutputVoltage(); });
+    CONNECT(m_widgetsButtons, ui->btnWorkModeGet,             [this]() { m_serialPortWorker->getWorkMode(); });
+    CONNECT(m_widgetsButtons, ui->btnDebugCurrentGet,         [this]() { m_serialPortWorker->getDebugCurrent(); });
+    CONNECT(m_widgetsButtons, ui->btnVersionGet,              [this]() { m_serialPortWorker->getVersion(); });
 
-    connect(ui->btnLimitVoltageLowGet,  &QPushButton::clicked, [this]() { m_serialPortWorker->getLimits(Limits::VoltageLow); });
-    connect(ui->btnLimitVoltageHighGet, &QPushButton::clicked, [this]() { m_serialPortWorker->getLimits(Limits::VoltageHigh); });
-    connect(ui->btnLimitCurrentLowGet,  &QPushButton::clicked, [this]() { m_serialPortWorker->getLimits(Limits::CurrentLow); });
-    connect(ui->btnLimitCurrentHighGet, &QPushButton::clicked, [this]() { m_serialPortWorker->getLimits(Limits::CurrentHigh); });
+    CONNECT(m_widgetsButtons, ui->btnTemperaturePidPGet,      [this]() { m_serialPortWorker->getTemperaturePid(PidVariableType::Proportional); });
+    CONNECT(m_widgetsButtons, ui->btnTemperaturePidIGet,      [this]() { m_serialPortWorker->getTemperaturePid(PidVariableType::Integral); });
+    CONNECT(m_widgetsButtons, ui->btnTemperaturePidDGet,      [this]() { m_serialPortWorker->getTemperaturePid(PidVariableType::Derivative); });
+    CONNECT(m_widgetsButtons, ui->btnTemperaturePidWindupGet, [this]() { m_serialPortWorker->getTemperaturePid(PidVariableType::WindUp); });
+    CONNECT(m_widgetsButtons, ui->btnTemperatureGet,          [this]() { m_serialPortWorker->getTemperature(); });
 
-    connect(ui->btnCurrentPidPSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
-    connect(ui->btnCurrentPidISet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
-    connect(ui->btnCurrentPidDSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
-    connect(ui->btnCurrentPidWindUpSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
-    connect(ui->btnDebugCurrentSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+    CONNECT(m_widgetsButtons, ui->btnLimitVoltageLowGet,      [this]() { m_serialPortWorker->getLimits(Limits::VoltageLow); logger->info("Limits::VoltageLow"); });
+    CONNECT(m_widgetsButtons, ui->btnLimitVoltageHighGet,     [this]() { m_serialPortWorker->getLimits(Limits::VoltageHigh); });
+    CONNECT(m_widgetsButtons, ui->btnLimitCurrentLowGet,      [this]() { m_serialPortWorker->getLimits(Limits::CurrentLow); });
+    CONNECT(m_widgetsButtons, ui->btnLimitCurrentHighGet,     [this]() { m_serialPortWorker->getLimits(Limits::CurrentHigh); });
+    CONNECT(m_widgetsButtons, ui->btnLimitCurrentGet,         [this]() { m_serialPortWorker->getLimits(Limits::CurrentLimitSW); });
+
+    CONNECT(m_widgetsButtons, ui->btnAutomatCoolingDownGet,   [this]() { m_serialPortWorker->getTemperatureAutomat(Automat::CoolingDown); });
+    CONNECT(m_widgetsButtons, ui->btnAutomatHeatingUpGet,     [this]() { m_serialPortWorker->getTemperatureAutomat(Automat::HeatingUp); });
+
+    CONNECT(m_widgetsButtons, ui->btnCurrentPidPSet,          [this]() { m_serialPortWorker->setCurrentPid(PidVariableType::Proportional, ui->spinCurrentPidP->value()); });
+    CONNECT(m_widgetsButtons, ui->btnCurrentPidISet,          [this]() { m_serialPortWorker->setCurrentPid(PidVariableType::Integral, ui->spinCurrentPidI->value()); });
+    CONNECT(m_widgetsButtons, ui->btnCurrentPidDSet,          [this]() { m_serialPortWorker->setCurrentPid(PidVariableType::Derivative, ui->spinCurrentPidD->value()); });
+    CONNECT(m_widgetsButtons, ui->btnCurrentPidWindUpSet,     [this]() { m_serialPortWorker->setCurrentPid(PidVariableType::WindUp, ui->spinCurrentPidWindUp->value()); });
+    CONNECT(m_widgetsButtons, ui->btnDebugCurrentSet,         [this]() { m_serialPortWorker->setDebugCurrent(ui->spinDebugCurrent->value()); });
     
-    connect(ui->btnTemperaturePidPSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
-    connect(ui->btnTemperaturePidISet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
-    connect(ui->btnTemperaturePidDSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
-    connect(ui->btnTemperaturePidWindupSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
-    connect(ui->btnTemperatureSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+    CONNECT(m_widgetsButtons, ui->btnTemperaturePidPSet,      [this]() { m_serialPortWorker->setTemperaturePid(PidVariableType::Proportional, ui->spinTemperaturePidP->value()); });
+    CONNECT(m_widgetsButtons, ui->btnTemperaturePidISet,      [this]() { m_serialPortWorker->setTemperaturePid(PidVariableType::Integral, ui->spinTemperaturePidI->value()); });
+    CONNECT(m_widgetsButtons, ui->btnTemperaturePidDSet,      [this]() { m_serialPortWorker->setTemperaturePid(PidVariableType::Derivative, ui->spinTemperaturePidD->value()); });
+    CONNECT(m_widgetsButtons, ui->btnTemperaturePidWindupSet, [this]() { m_serialPortWorker->setTemperaturePid(PidVariableType::WindUp, ui->spinTemperaturePidWindup->value()); });
+    CONNECT(m_widgetsButtons, ui->btnTemperatureSet,          [this]() { m_serialPortWorker->setTemperature(ui->spinTemperature->value()); });
 
-    connect(ui->btnLimitVoltageLowSet,  &QPushButton::clicked, [this]() { m_serialPortWorker->setLimits(Limits::VoltageLow,  ui->spinLimitVoltageLow->value()); });
-    connect(ui->btnLimitVoltageHighSet, &QPushButton::clicked, [this]() { m_serialPortWorker->setLimits(Limits::VoltageHigh, ui->spinLimitVoltageHigh->value()); });
-    connect(ui->btnLimitCurrentLowSet,  &QPushButton::clicked, [this]() { m_serialPortWorker->setLimits(Limits::CurrentLow,  ui->spinLimitCurrentLow->value()); });
-    connect(ui->btnLimitCurrentHighSet, &QPushButton::clicked, [this]() { m_serialPortWorker->setLimits(Limits::CurrentHigh, ui->spinLimitCurrentHigh->value()); });
+    CONNECT(m_widgetsButtons, ui->btnLimitVoltageLowSet,      [this]() { m_serialPortWorker->setLimits(Limits::VoltageLow,  ui->spinLimitVoltageLow->value()); });
+    CONNECT(m_widgetsButtons, ui->btnLimitVoltageHighSet,     [this]() { m_serialPortWorker->setLimits(Limits::VoltageHigh, ui->spinLimitVoltageHigh->value()); });
+    CONNECT(m_widgetsButtons, ui->btnLimitCurrentLowSet,      [this]() { m_serialPortWorker->setLimits(Limits::CurrentLow,  ui->spinLimitCurrentLow->value()); });
+    CONNECT(m_widgetsButtons, ui->btnLimitCurrentHighSet,     [this]() { m_serialPortWorker->setLimits(Limits::CurrentHigh, ui->spinLimitCurrentHigh->value()); });
+    CONNECT(m_widgetsButtons, ui->btnLimitCurrentSet,         [this]() { m_serialPortWorker->setLimits(Limits::CurrentLimitSW, ui->spinLimitCurrent->value()); });
 
-    connect(ui->btnDebugOutVoltageSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
-    connect(ui->btnWorkModeSet, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
+    CONNECT(m_widgetsButtons, ui->btnAutomatCoolingDownSet,   [this]() { m_serialPortWorker->setTemperatureAutomat(Automat::CoolingDown, ui->spinAutomatCoolingDown->value()); });
+    CONNECT(m_widgetsButtons, ui->btnAutomatHeatingUpSet,     [this]() { m_serialPortWorker->setTemperatureAutomat(Automat::HeatingUp, ui->spinAutomatHeatingUp->value()); });
 
-    connect(ui->btnSaveSettings, &QPushButton::clicked, this, &MainWindow::buttonSetClicked);
-}
+    CONNECT(m_widgetsButtons, ui->btnDebugOutVoltageSet,      [this]() { m_serialPortWorker->setOutputVoltage(ui->spinDebugOutVoltage->value()); });
+    CONNECT(m_widgetsButtons, ui->btnDebugMessageSet,         [this]() { m_serialPortWorker->setDebugMessage(ui->editDebugMessage->text()); });
+    CONNECT(m_widgetsButtons, ui->btnWorkModeSet,             [this]() { m_serialPortWorker->setWorkMode(static_cast<WorkMode>(ui->cmbWorkMode->currentData().toInt())); });
 
-void MainWindow::buttonGetClicked() {
-    if (sender() == ui->btnDebugOutVoltageGet) {
-        m_serialPortWorker->getOutputVoltage();
-    } else if (sender() == ui->btnCurrentPidPGet) {
-        m_serialPortWorker->getCurrentPid(PidVariableType::Proportional);
-    } else if (sender() == ui->btnCurrentPidIGet) {
-        m_serialPortWorker->getCurrentPid(PidVariableType::Integral);
-    } else if (sender() == ui->btnCurrentPidDGet) {
-        m_serialPortWorker->getCurrentPid(PidVariableType::Derivative);
-    } else if (sender() == ui->btnCurrentPidWindUpGet) {
-        m_serialPortWorker->getCurrentPid(PidVariableType::WindUp);
-    } else if (sender() == ui->btnWorkModeGet) {
-        m_serialPortWorker->getWorkMode();
-    } else if (sender() == ui->btnDebugCurrentGet) {
-        m_serialPortWorker->getDebugCurrent();
-    } else if (sender() == ui->btnTemperaturePidPGet) {
-        m_serialPortWorker->getTemperaturePid(PidVariableType::Proportional);
-    } else if (sender() == ui->btnTemperaturePidIGet) {
-        m_serialPortWorker->getTemperaturePid(PidVariableType::Integral);
-    } else if (sender() == ui->btnTemperaturePidDGet) {
-        m_serialPortWorker->getTemperaturePid(PidVariableType::Derivative);
-    } else if (sender() == ui->btnTemperaturePidWindupGet) {
-        m_serialPortWorker->getTemperaturePid(PidVariableType::WindUp);
-    } else if (sender() == ui->btnTemperatureGet) {
-        m_serialPortWorker->getTemperature();
-    } else if (sender() == ui->btnVersionGet) {
-        m_serialPortWorker->getVersion();
-    }
-}
-
-void MainWindow::buttonSetClicked() {
-    if (sender() == ui->btnDebugOutVoltageSet) {
-        m_serialPortWorker->setOutputVoltage(ui->spinDebugOutVoltage->value());
-    } else if (sender() == ui->btnCurrentPidPSet) {
-        m_serialPortWorker->setCurrentPid(PidVariableType::Proportional, ui->spinCurrentPidP->value());
-    } else if (sender() == ui->btnCurrentPidISet) {
-        m_serialPortWorker->setCurrentPid(PidVariableType::Integral, ui->spinCurrentPidI->value());
-    } else if (sender() == ui->btnCurrentPidDSet) {
-        m_serialPortWorker->setCurrentPid(PidVariableType::Derivative, ui->spinCurrentPidD->value());
-    } else if (sender() == ui->btnCurrentPidWindUpSet) {
-        m_serialPortWorker->setCurrentPid(PidVariableType::WindUp, ui->spinCurrentPidWindUp->value());
-    } else if (sender() == ui->btnWorkModeSet) {
-        m_serialPortWorker->setWorkMode(static_cast<WorkMode>(ui->cmbWorkMode->currentData().toInt()));
-    } else if (sender() == ui->btnDebugCurrentSet) {
-        m_serialPortWorker->setDebugCurrent(ui->spinDebugCurrent->value());
-    } else if (sender() == ui->btnTemperaturePidPSet) {
-        m_serialPortWorker->setTemperaturePid(PidVariableType::Proportional, ui->spinTemperaturePidP->value());
-    } else if (sender() == ui->btnTemperaturePidISet) {
-        m_serialPortWorker->setTemperaturePid(PidVariableType::Integral, ui->spinTemperaturePidI->value());
-    } else if (sender() == ui->btnTemperaturePidDSet) {
-        m_serialPortWorker->setTemperaturePid(PidVariableType::Derivative, ui->spinTemperaturePidD->value());
-    } else if (sender() == ui->btnTemperaturePidWindupSet) {
-        m_serialPortWorker->setTemperaturePid(PidVariableType::WindUp, ui->spinTemperaturePidWindup->value());
-    } else if (sender() == ui->btnTemperatureSet) {
-        m_serialPortWorker->setTemperature(ui->spinTemperature->value());
-    } else if (sender() == ui->btnSaveSettings) {
-        m_serialPortWorker->saveSettingsToEeprom();
-    }
+    CONNECT(m_widgetsButtons, ui->btnSaveSettings,            [this]() { m_serialPortWorker->saveSettingsToEeprom(); });
 }
 
 void MainWindow::buttonRecordClicked() {
@@ -282,6 +252,10 @@ void MainWindow::SetDisconnected() {
     if (!m_recordFileName.isEmpty()) {
         buttonRecordClicked();
     }
+
+    for (auto w : m_widgetsButtons) {
+        w->disconnect();
+    }
 }
 
 void MainWindow::PopulateSerialPorts() {
@@ -313,8 +287,8 @@ void MainWindow::Telemetry(const QList<double> &current, double temperature, uin
     RecordTelemetry(current, temperature);
 
     auto cur_mean = std::accumulate(current.begin(), current.end(), 0.0) / current.size();
-    ui->labelTemperature->setText(tr("Temperature %1 °C").arg(temperature, 0, 'g', 4, '0'));    
-    ui->labelCurrent->setText(tr("Current: %1 A").arg(cur_mean, 0, 'g', 3, '0'));
+    ui->labelTemperature->setText(tr("Temperature %1 °C").arg(FormatFloat(temperature, 3, 3)));
+    ui->labelCurrent->setText(tr("Current: %1 A").arg(FormatFloat(cur_mean, 3, 2)));
 }
 
 QString MainWindow::RecordIndexToTime(qint64 index, double timebase) {
@@ -458,8 +432,27 @@ WorkMode wm;
                     case Limits::CurrentHigh:
                         ui->spinLimitCurrentHigh->setValue(f_value);
                         break;
+                    case Limits::CurrentLimitSW:
+                        ui->spinLimitCurrent->setValue(f_value);
+                        break;
                     default:
                         logger->warn("Unknown Limit reply: {}", data[0]);
+                }
+            }
+            break;
+
+        case tec::Commands::AutomatGetSet:
+            if (data.size() == sizeof(f_value) + 1) {
+                ::memcpy(&f_value, data.constData() + 1, data.size() - 1);
+                switch (static_cast<Automat>(data[0])) {
+                    case Automat::HeatingUp:
+                        ui->spinAutomatHeatingUp->setValue(f_value);
+                        break;
+                    case Automat::CoolingDown:
+                        ui->spinAutomatCoolingDown->setValue(f_value);
+                        break;
+                    default:
+                        logger->warn("Unkown Automat reply: {}", data[0]);
                 }
             }
             break;

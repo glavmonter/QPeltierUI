@@ -184,6 +184,18 @@ void SerialPortWorker::commandTransmit(tec::Commands cmd) {
     commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), QByteArray()));
 }
 
+void SerialPortWorker::setDebugMessage(const QString &messageBinary) {
+    bool ok;
+    quint32 msg = messageBinary.toUInt(&ok, 2);
+    setDebugMessage(msg);
+}
+
+void SerialPortWorker::setDebugMessage(quint32 message) {
+auto cmd = tec::Commands::DebugMsg;
+QByteArray arr;
+    arr.append(reinterpret_cast<const char *>(&message), 4);
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), arr));
+}
 
 void SerialPortWorker::setOutputVoltage(double voltagePercent) {
 float v = static_cast<float>(voltagePercent);
@@ -227,6 +239,22 @@ QByteArray arr;
 
 void SerialPortWorker::getTemperaturePid(PidVariableType type) {
 auto cmd = tec::Commands::TemperaturePidGetSet;
+QByteArray arr;
+    arr.append(qToUnderlying(type));
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), arr));
+}
+
+void SerialPortWorker::setTemperatureAutomat(Automat type, double value) {
+auto cmd = tec::Commands::AutomatGetSet;
+float v = static_cast<float>(value);
+QByteArray arr;
+    arr.append(qToUnderlying(type));
+    arr.append(reinterpret_cast<const char *>(&v), 4);
+    commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), arr));
+}
+
+void SerialPortWorker::getTemperatureAutomat(Automat type) {
+auto cmd = tec::Commands::AutomatGetSet;
 QByteArray arr;
     arr.append(qToUnderlying(type));
     commandTransmit(cmd, Wake::PrepareTx(qToUnderlying(cmd), arr));
