@@ -30,7 +30,7 @@ public:
 
 signals:
     void error(const QString &s);
-    void telemetryRecv(QList<double> current, double temperature, uint32_t status, uint32_t reserved);
+    void telemetryRecv(QList<double> current, double temperature, double voltage, uint32_t status);
     void commandExecute(CommandError error, tec::Commands command, const QByteArray &data);
 
 public slots:

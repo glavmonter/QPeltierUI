@@ -362,8 +362,8 @@ void SerialPortWorker::ParseTelemetryRecord(const QList<uint8_t> &data) {
 auto p_data = static_cast<const uint8_t *>(data.constData());
 auto p_current = reinterpret_cast<const int16_t *>(p_data + 2);
 auto p_temperature = reinterpret_cast<const float *>(p_current + 40);
-auto p_reserved = reinterpret_cast<const uint32_t *>(p_temperature + 1);
-auto p_status = reinterpret_cast<const uint32_t *>(p_reserved + 1);
+auto p_status = reinterpret_cast<const uint32_t *>(p_temperature + 1);
+auto p_voltage = reinterpret_cast<const float *>(p_status + 1);
 
     // 2 байта: порядковый номер фрейма
 uint16_t cnt;
@@ -376,7 +376,7 @@ int16_t c;
         current.append((*(p_current + i)) / 1000.0);
     }
 
-    emit telemetryRecv(current, *p_temperature, *p_status, *p_reserved);
+    emit telemetryRecv(current, *p_temperature, *p_voltage, *p_status);
 }
 
 

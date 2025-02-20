@@ -11,25 +11,38 @@ class RecorderWidget : public QChart  {
     Q_OBJECT
 
 public:
-    explicit RecorderWidget(QGraphicsItem *parent = nullptr);
+    RecorderWidget(int axis, QGraphicsItem *parent = nullptr);
 
-    QLineSeries *series() const { return m_series; }
+    // QLineSeries *series() const { return m_series; }
 
     void addData(const QList<double> &data);
+    void addData(const QList<double> &dataY1, const QList<double> &dataY2);
     void addData(double data);
+    void addData(double dataY1, double dataY2);
+
     void clear();
 
     void setRecordParameters(double tick, double recordTime);
     double timebase() const { return m_tickTime; }
-    void setVerticalRange(double range);
+    void setVerticalRange(int axis, double range);
+    void setVerticalOffset(int axis, double offset);
 
 private:
-    QLineSeries *m_series;
-    QValueAxis *m_axisX;
-    QValueAxis *m_axisY;
+    QLineSeries *m_series1;
+    QLineSeries *m_series2;
 
-    QList<QPointF> m_buffer;
-    double m_vericalRange = 0.1;      
+    QValueAxis *m_axisX;
+    QValueAxis *m_axisY1;
+    QValueAxis *m_axisY2;
+
+    QList<QPointF> m_buffer1;
+    QList<QPointF> m_buffer2;
+
+    int m_iNumAxis;
+    double m_verticalRange1 = 0.1;
+    double m_verticalRange2 = 0.1;
+    double m_verticalRange2Offset = 0.5;
+
     double m_tickTime;          ///< Время одного тика, секунд
     double m_recordTime;        ///< Полное отображаемое время, секунд
     int m_bufferMaxSize;

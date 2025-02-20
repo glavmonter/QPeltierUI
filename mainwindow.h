@@ -58,7 +58,7 @@ private:
     
 public slots:
     void SerialError(const QString &s);
-    void Telemetry(const QList<double> &current, double temperature, uint32_t status);
+    void Telemetry(const QList<double> &current, double temperature, double voltage, uint32_t status);
     void commandExecute(SerialPortWorker::CommandError error, tec::Commands command, const QByteArray &data);
 
     void buttonRecordClicked();

@@ -108,21 +108,25 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::ConfigureCharts() {
-    m_chartCurrent = new RecorderWidget();
+    m_chartCurrent = new RecorderWidget(1);
     m_chartCurrent->legend()->hide();
     auto axisY = m_chartCurrent->axes(Qt::Vertical);
     axisY[0]->setTitleText("Current, A");
     axisY[0]->setRange(-1, 1);
     m_chartCurrent->setRecordParameters(500e-6, 10); // 500 мкс/тик, 10 секунд записи
 
-    m_chartTemperature = new RecorderWidget();
+    m_chartTemperature = new RecorderWidget(2);
     m_chartTemperature->legend()->hide();
     axisY = m_chartTemperature->axes(Qt::Vertical);
     axisY[0]->setTitleText("Temperature, C");
     axisY[0]->setRange(-1, 1);
+    axisY[1]->setTitleText("Voltage, V");
     m_chartTemperature->setRecordParameters(20e-3, 30); // 20 мс/тик, 30 секунд записи
-    m_chartTemperature->setVerticalRange(0.05);
-    
+    m_chartTemperature->setVerticalRange(0, 0.05);
+
+    m_chartTemperature->setVerticalRange(1, 1);
+    m_chartTemperature->setVerticalOffset(1, 0.5);
+
     ui->chartViewCurrent->setChart(m_chartCurrent);
     ui->chartViewTemperature->setChart(m_chartTemperature);
 }
@@ -281,14 +285,15 @@ void MainWindow::SerialError(const QString &s) {
 }
 
 
-void MainWindow::Telemetry(const QList<double> &current, double temperature, uint32_t status) {
+void MainWindow::Telemetry(const QList<double> &current, double temperature, double voltage, uint32_t status) {
     m_chartCurrent->addData(current);
-    m_chartTemperature->addData(temperature);
+    m_chartTemperature->addData(temperature, voltage);
     RecordTelemetry(current, temperature);
 
     auto cur_mean = std::accumulate(current.begin(), current.end(), 0.0) / current.size();
     ui->labelTemperature->setText(tr("Temperature %1 °C").arg(FormatFloat(temperature, 3, 3)));
     ui->labelCurrent->setText(tr("Current: %1 A").arg(FormatFloat(cur_mean, 3, 2)));
+    ui->labelVoltage->setText(tr("Voltage: %1 V").arg(FormatFloat(voltage, 3, 2)));
 }
 
 QString MainWindow::RecordIndexToTime(qint64 index, double timebase) {

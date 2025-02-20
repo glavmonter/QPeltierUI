@@ -105,6 +105,29 @@
              </widget>
             </item>
             <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelVoltage">
+              <property name="text">
+               <string>Voltage</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <spacer name="horizontalSpacer_2">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
@@ -134,7 +157,7 @@
         <enum>Qt::LeftToRight</enum>
        </property>
        <property name="currentIndex">
-        <number>4</number>
+        <number>5</number>
        </property>
        <widget class="QWidget" name="tabPageCommon">
         <attribute name="title">
@@ -744,7 +767,7 @@
            <item row="1" column="1">
             <widget class="QDoubleSpinBox" name="spinTemperature">
              <property name="decimals">
-              <number>1</number>
+              <number>3</number>
              </property>
              <property name="minimum">
               <double>-100.000000000000000</double>
@@ -1290,6 +1313,82 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>cmbSerialPorts</tabstop>
+  <tabstop>btnConnectDisconnect</tabstop>
+  <tabstop>tabSettings</tabstop>
+  <tabstop>cmbWorkMode</tabstop>
+  <tabstop>btnWorkModeSet</tabstop>
+  <tabstop>btnWorkModeGet</tabstop>
+  <tabstop>btnVersionGet</tabstop>
+  <tabstop>btnSaveSettings</tabstop>
+  <tabstop>txtSecurityKey</tabstop>
+  <tabstop>btnSecurityKeySet</tabstop>
+  <tabstop>btnSecurityKeyGet</tabstop>
+  <tabstop>spinPowerVoltage</tabstop>
+  <tabstop>btnPowerVoltageSet</tabstop>
+  <tabstop>btnPowerVoltageGet</tabstop>
+  <tabstop>spinCurrentPidP</tabstop>
+  <tabstop>btnCurrentPidPSet</tabstop>
+  <tabstop>btnCurrentPidPGet</tabstop>
+  <tabstop>spinCurrentPidI</tabstop>
+  <tabstop>btnCurrentPidISet</tabstop>
+  <tabstop>btnCurrentPidIGet</tabstop>
+  <tabstop>spinCurrentPidD</tabstop>
+  <tabstop>btnCurrentPidDSet</tabstop>
+  <tabstop>btnCurrentPidDGet</tabstop>
+  <tabstop>spinCurrentPidWindUp</tabstop>
+  <tabstop>btnCurrentPidWindUpSet</tabstop>
+  <tabstop>btnCurrentPidWindUpGet</tabstop>
+  <tabstop>spinDebugCurrent</tabstop>
+  <tabstop>btnDebugCurrentSet</tabstop>
+  <tabstop>btnDebugCurrentGet</tabstop>
+  <tabstop>btnRecordCurrent</tabstop>
+  <tabstop>cmbSensorType</tabstop>
+  <tabstop>btnSensorTypeSet</tabstop>
+  <tabstop>btnSensorTypeGet</tabstop>
+  <tabstop>spinTemperature</tabstop>
+  <tabstop>btnTemperatureSet</tabstop>
+  <tabstop>btnTemperatureGet</tabstop>
+  <tabstop>spinTemperaturePidP</tabstop>
+  <tabstop>btnTemperaturePidPSet</tabstop>
+  <tabstop>btnTemperaturePidPGet</tabstop>
+  <tabstop>spinTemperaturePidI</tabstop>
+  <tabstop>btnTemperaturePidISet</tabstop>
+  <tabstop>btnTemperaturePidIGet</tabstop>
+  <tabstop>spinTemperaturePidD</tabstop>
+  <tabstop>btnTemperaturePidDSet</tabstop>
+  <tabstop>btnTemperaturePidDGet</tabstop>
+  <tabstop>spinTemperaturePidWindup</tabstop>
+  <tabstop>btnTemperaturePidWindupSet</tabstop>
+  <tabstop>btnTemperaturePidWindupGet</tabstop>
+  <tabstop>spinAutomatHeatingUp</tabstop>
+  <tabstop>btnAutomatHeatingUpSet</tabstop>
+  <tabstop>btnAutomatHeatingUpGet</tabstop>
+  <tabstop>spinAutomatCoolingDown</tabstop>
+  <tabstop>btnAutomatCoolingDownSet</tabstop>
+  <tabstop>btnAutomatCoolingDownGet</tabstop>
+  <tabstop>spinLimitVoltageLow</tabstop>
+  <tabstop>btnLimitVoltageLowSet</tabstop>
+  <tabstop>btnLimitVoltageLowGet</tabstop>
+  <tabstop>spinLimitVoltageHigh</tabstop>
+  <tabstop>btnLimitVoltageHighSet</tabstop>
+  <tabstop>btnLimitVoltageHighGet</tabstop>
+  <tabstop>spinLimitCurrentLow</tabstop>
+  <tabstop>btnLimitCurrentLowSet</tabstop>
+  <tabstop>btnLimitCurrentLowGet</tabstop>
+  <tabstop>spinLimitCurrentHigh</tabstop>
+  <tabstop>btnLimitCurrentHighSet</tabstop>
+  <tabstop>btnLimitCurrentHighGet</tabstop>
+  <tabstop>spinLimitCurrent</tabstop>
+  <tabstop>btnLimitCurrentSet</tabstop>
+  <tabstop>btnLimitCurrentGet</tabstop>
+  <tabstop>spinDebugOutVoltage</tabstop>
+  <tabstop>btnDebugOutVoltageSet</tabstop>
+  <tabstop>btnDebugOutVoltageGet</tabstop>
+  <tabstop>editDebugMessage</tabstop>
+  <tabstop>btnDebugMessageSet</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
