@@ -157,7 +157,7 @@
         <enum>Qt::LeftToRight</enum>
        </property>
        <property name="currentIndex">
-        <number>3</number>
+        <number>5</number>
        </property>
        <widget class="QWidget" name="tabPageCommon">
         <attribute name="title">
@@ -314,6 +314,9 @@
            </item>
            <item row="0" column="2">
             <widget class="QDoubleSpinBox" name="spinPowerVoltage">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="decimals">
               <number>1</number>
              </property>
@@ -462,19 +465,6 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="3">
-            <widget class="QPushButton" name="btnPowerVoltageSet">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Set</string>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="4">
             <widget class="QPushButton" name="btnPowerVoltageGet">
              <property name="sizePolicy">
@@ -574,6 +564,22 @@
             <widget class="QPushButton" name="btnCurrentPidDGet">
              <property name="text">
               <string>Get</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="btnPowerVoltageSet">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Set</string>
              </property>
             </widget>
            </item>
@@ -846,6 +852,9 @@
            </item>
            <item row="0" column="1">
             <widget class="QDoubleSpinBox" name="spinAutomatHeatingUp">
+             <property name="toolTip">
+              <string>0.1 - 1000</string>
+             </property>
              <property name="suffix">
               <string> K/min</string>
              </property>
@@ -853,16 +862,19 @@
               <number>1</number>
              </property>
              <property name="minimum">
-              <double>0.000000000000000</double>
+              <double>0.100000000000000</double>
              </property>
              <property name="maximum">
-              <double>180.000000000000000</double>
+              <double>1000.000000000000000</double>
              </property>
              <property name="singleStep">
               <double>1.000000000000000</double>
              </property>
+             <property name="stepType">
+              <enum>QAbstractSpinBox::DefaultStepType</enum>
+             </property>
              <property name="value">
-              <double>60.000000000000000</double>
+              <double>5.000000000000000</double>
              </property>
             </widget>
            </item>
@@ -889,6 +901,9 @@
            </item>
            <item row="1" column="1">
             <widget class="QDoubleSpinBox" name="spinAutomatCoolingDown">
+             <property name="toolTip">
+              <string>0.1 - 1000</string>
+             </property>
              <property name="suffix">
               <string> K/min</string>
              </property>
@@ -896,16 +911,19 @@
               <number>1</number>
              </property>
              <property name="minimum">
-              <double>0.000000000000000</double>
+              <double>0.100000000000000</double>
              </property>
              <property name="maximum">
-              <double>180.000000000000000</double>
+              <double>1000.000000000000000</double>
              </property>
              <property name="singleStep">
               <double>1.000000000000000</double>
              </property>
+             <property name="stepType">
+              <enum>QAbstractSpinBox::DefaultStepType</enum>
+             </property>
              <property name="value">
-              <double>60.000000000000000</double>
+              <double>5.000000000000000</double>
              </property>
             </widget>
            </item>
@@ -1195,6 +1213,46 @@
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <layout class="QGridLayout" name="gridLayout_7">
+           <item row="1" column="2" colspan="2">
+            <widget class="QPushButton" name="btnDebugMessageSet">
+             <property name="text">
+              <string>Set</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="editDebugMessage">
+             <property name="inputMask">
+              <string>bbbbbbbb</string>
+             </property>
+             <property name="text">
+              <string>0000000</string>
+             </property>
+             <property name="maxLength">
+              <number>8</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="lblDebug">
+             <property name="text">
+              <string>Debug</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QPushButton" name="btnDebugOutVoltageSet">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Set</string>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="0">
             <widget class="QLabel" name="lblOutVoltage">
              <property name="sizePolicy">
@@ -1205,6 +1263,19 @@
              </property>
              <property name="text">
               <string>Out voltage</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="btnDebugOutVoltageGet">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Get</string>
              </property>
             </widget>
            </item>
@@ -1230,56 +1301,17 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="2">
-            <widget class="QPushButton" name="btnDebugOutVoltageSet">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
+           <item row="2" column="1">
+            <widget class="QCheckBox" name="chkRTS">
              <property name="text">
-              <string>Set</string>
+              <string>RTS - nRST</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="3">
-            <widget class="QPushButton" name="btnDebugOutVoltageGet">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
+           <item row="3" column="1">
+            <widget class="QCheckBox" name="chkDTR">
              <property name="text">
-              <string>Get</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="lblDebug">
-             <property name="text">
-              <string>Debug</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="editDebugMessage">
-             <property name="inputMask">
-              <string>bbbbbbbb</string>
-             </property>
-             <property name="text">
-              <string>0000000</string>
-             </property>
-             <property name="maxLength">
-              <number>8</number>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2" colspan="2">
-            <widget class="QPushButton" name="btnDebugMessageSet">
-             <property name="text">
-              <string>Set</string>
+              <string>DTR - BOOT0</string>
              </property>
             </widget>
            </item>

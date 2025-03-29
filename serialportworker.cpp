@@ -104,16 +104,22 @@ void SerialPortWorker::runSerial() {
         } else if (currentPortNameChanged) {
             recvData.clear();
 
+            // RTS# - NRST
+            // DTR# - BOOT0, pulldown 4.7k
             serial.close();
             serial.setPortName(currentPortName);
             serial.setBaudRate(921600);
             serial.setReadBufferSize(1024 * 1024);
+            serial.setFlowControl(QSerialPort::NoFlowControl);
             if (!serial.open(QIODevice::ReadWrite)) {
                 QString err = QString("Cannot open %1, error code %2").arg(currentPortName).arg(serial.error());
                 logger->error(err.toStdString());
                 emit error(err);
                 return;
             }
+
+            serial.setDataTerminalReady(true);
+            serial.setRequestToSend(false);            
         }
 
         if (serial.waitForReadyRead(currentWaitTimeout)) {
@@ -166,10 +172,24 @@ void SerialPortWorker::runSerial() {
             emit commandExecute(CommandError::TimeoutError, static_cast<tec::Commands>(m_commandPending), QByteArray());
             m_commandPending = qToUnderlying(tec::Commands::Invalid);
         }
+
+        if (m_bRtsDtrPending) {
+            m_bRtsDtrPending = false;
+            serial.setRequestToSend(m_bRTS);
+            serial.setDataTerminalReady(m_bDTR);
+        }
         m_mutex.unlock();
     }
 }
 
+void SerialPortWorker::setRtsDtr(bool rts, bool dtr) {
+    if (m_mutex.tryLock(100)) {
+        m_bRTS = rts;
+        m_bDTR = dtr;
+        m_bRtsDtrPending = true;
+        m_mutex.unlock();
+    }
+}
 
 void SerialPortWorker::commandTransmit(tec::Commands cmd, const QByteArray &tx) {
     if (m_mutex.tryLock(100)) {

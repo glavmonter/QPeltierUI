@@ -37,6 +37,8 @@ public slots:
     void recvValid(const QList<uint8_t> &data, uint8_t command);
     void recvInvalid(const QList<uint8_t> &data, uint8_t command);
     
+    void setRtsDtr(bool rts, bool dtr);
+
     void sendFrame(tec::Commands cmd, const QByteArray &data);
 
     void setDebugMessage(quint32 message);
@@ -86,6 +88,10 @@ static const int TelementrySize = 94;
     QString m_portName;
     int m_waitTimeout = 0;
     qint64 m_commandTimeout = 1000;
+
+    bool m_bRTS = false;
+    bool m_bDTR = false;
+    bool m_bRtsDtrPending = false;
 
     QMutex m_mutex;
     bool m_quit = false;

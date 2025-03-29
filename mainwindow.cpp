@@ -101,6 +101,9 @@ MainWindow::MainWindow(bool isSimulator, QWidget *parent) : isSimulator(isSimula
     for (auto w : m_widgetsInTabs) {
         w->setDisabled(true);
     }
+
+    connect(ui->chkRTS, &QCheckBox::stateChanged, [this]() { m_serialPortWorker->setRtsDtr(ui->chkRTS->isChecked(), ui->chkDTR->isChecked()); });
+    connect(ui->chkDTR, &QCheckBox::stateChanged, [this]() { m_serialPortWorker->setRtsDtr(ui->chkRTS->isChecked(), ui->chkDTR->isChecked()); });
 }
 
 MainWindow::~MainWindow() {

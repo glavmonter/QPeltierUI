@@ -13,9 +13,9 @@
             "args": [
                 "-s"
             ],
-            "visualizerFile": "${workspaceFolder}/qt6.natvis",
+            "visualizerFile": "/home/mesh/.config/Code/User/workspaceStorage/069cbb6f6574abcba219edddccbfead8/tonka3000.qtvsctools/qt.natvis.xml",
             "request": "launch",
-            "stopAtEntry": false,
+            "stopAtEntry": false
         },
         {
             "name": "QPeltierUI",
@@ -24,7 +24,7 @@
             "envFile": "${workspaceFolder}/.vscode/project.env",
             "program": "${workspaceRoot}/build/QPeltierUI.exe",
             "args": [],
-            "visualizerFile": "${workspaceFolder}/qt6.natvis",
+            "visualizerFile": "/home/mesh/.config/Code/User/workspaceStorage/069cbb6f6574abcba219edddccbfead8/tonka3000.qtvsctools/qt.natvis.xml",
             "request": "launch",
             "stopAtEntry": false,
             "sourceFileMap": {
@@ -39,11 +39,10 @@
             "type": "cppdbg",
             "cwd": "${workspaceRoot}/build",
             "program": "${workspaceRoot}/build/QPeltierUI",
-            "visualizerFile": "${workspaceFolder}/qt6.natvis",
+            "visualizerFile": "/home/mesh/.config/Code/User/workspaceStorage/069cbb6f6574abcba219edddccbfead8/tonka3000.qtvsctools/qt.natvis.xml",
             "request": "launch",
             "stopAtEntry": false
         },
-
         {
             "name": "check_wake.py",
             "type": "debugpy",
@@ -54,7 +53,6 @@
                 "c0:55:5a:99:2d:08:00:08:00:10:00:10:00:10:00:08:00:08:00:08:00:08:00:10:00:10:00:08:00:10:00:08:00:10:00:08:00:08:00:10:00:10:00:10:00:00:00:08:00:10:00:08:00:00:00:08:00:10:00:10:00:08:00:08:00:08:00:08:00:08:00:08:00:08:00:08:00:08:00:10:00:08:00:08:00:00:00:db:dc:c1:00:00:00:00:31"
             ]
         },
-
         {
             "name": "show.py",
             "type": "debugpy",
@@ -62,11 +60,12 @@
             "program": "${workspaceRoot}/Utils/show.py",
             "console": "integratedTerminal",
             "args": [
+                "-gt",
                 "Utils/Temperature.csv",
-                "5", "10"
+                "5",
+                "10"
             ]
         },
-
         {
             "name": "filter.py",
             "type": "debugpy",
@@ -78,7 +77,6 @@
                 "Utils/RealCurrent.csv"
             ]
         },
-
         {
             "name": "fft.py",
             "type": "debugpy",
@@ -87,9 +85,19 @@
             "console": "integratedTerminal",
             "args": [
                 "Utils/RealCurrent.csv",
-                "1", "5"
+                "1",
+                "5"
+            ]
+        },
+        {
+            "name": "pid.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceRoot}/Utils/pid.py",
+            "console": "integratedTerminal",
+            "args": [
+                "Utils/RealCurrent.csv"
             ]
         }
-        
     ]
 }
